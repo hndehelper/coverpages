@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CoverPages Pro - Generator & Preview</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        :root { --primary: #6c5ce7; --primary-light: #a29bfe; --bg: #f8f9fd; --text-main: #2d3436; --text-sub: #636e72; --card-bg: #ffffff; --input-bg: #f0f3f9; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); margin: 0; color: var(--text-main); padding-bottom: 50px; }
+        .app-header { background: linear-gradient(135deg, var(--primary), #8e44ad); color: white; padding: 25px 20px; text-align: center; border-bottom-left-radius: 30px; border-bottom-right-radius: 30px; box-shadow: 0 4px 15px rgba(108, 92, 231, 0.3); margin-bottom: 20px; }
+        .container { max-width: 500px; margin: 0 auto; padding: 0 15px; }
+        .section-title { font-size: 16px; font-weight: 700; margin: 25px 0 10px 5px; color: var(--text-main); }
+        .card { background: var(--card-bg); padding: 20px; border-radius: 20px; box-shadow: 0 8px 25px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        .input-group { margin-bottom: 15px; }
+        .input-group label { display: block; font-size: 11px; font-weight: 600; color: var(--text-sub); margin-bottom: 5px; margin-left: 5px; }
+        input, textarea { width: 100%; padding: 12px 15px; background: var(--input-bg); border: 2px solid transparent; border-radius: 12px; font-size: 14px; font-family: inherit; box-sizing: border-box; }
+        input:focus, textarea:focus { outline: none; border-color: var(--primary-light); background: #fff; }
+        .chip-container { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+        .chip { padding: 8px 15px; background: var(--input-bg); border-radius: 20px; font-size: 12px; font-weight: 500; cursor: pointer; border: none; color: var(--text-sub); }
+        .chip.active { background: var(--primary); color: white; }
+        .row { display: flex; gap: 10px; }
+        .row > div { flex: 1; }
+        .btn-export { width: 100%; padding: 16px; background: linear-gradient(135deg, var(--primary), #8e44ad); color: white; border: none; border-radius: 15px; font-size: 16px; font-weight: 700; cursor: pointer; margin-top: 10px; box-shadow: 0 6px 20px rgba(108, 92, 231, 0.4); }
+
+        /* Preview Section */
+        .preview-header { display: flex; justify-content: space-between; align-items: center; margin-top: 30px; }
+        .preview-box { 
+            width: 100%; aspect-ratio: 1 / 1.414; background: white; margin-top: 15px; 
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1); border-radius: 5px; position: relative; 
+            overflow: hidden; font-family: 'Times New Roman', Times, serif; color: black;
+            transform: scale(1); transform-origin: top center;
+        }
+        .p-border { position: absolute; top: 3.3%; left: 11.9%; right: 4.7%; bottom: 3.3%; border: 0.8px solid black; }
+        
+        /* Top Right Block */
+        .p-top-info { position: absolute; top: 7%; right: 10%; width: 45%; text-align: left; font-size: 10px; line-height: 1.3; font-weight: bold; }
+        
+        /* Topic (Practical Name) */
+        .p-center { position: absolute; top: 58%; left: 58%; transform: translate(-50%, -50%); width: 70%; text-align: center; }
+        .p-prac-name { font-weight: bold; font-size: 18px; text-decoration: underline; text-transform: uppercase; line-height: 1.2; }
+        
+        /* Instruction Section (Directly below Practical Name) */
+        .p-instruction { position: absolute; top: 66%; left: 15%; width: 70%; font-size: 7px; line-height: 1.4; }
+        .p-instruction table { border-collapse: collapse; width: 100%; }
+        .p-instruction td { vertical-align: top; padding: 1px 0; }
+        
+        /* Bottom Right Details */
+        .p-bottom-right { position: absolute; bottom: 8%; right: 8%; width: 45%; font-size: 7px; line-height: 1.4; text-align: left; }
+        .p-bottom-right table { border-collapse: collapse; width: 100%; }
+        .p-bottom-right td { padding: 1px 0; }
+
+        #adOverlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; color: white; backdrop-filter: blur(5px); flex-direction: column; align-items: center; justify-content: center; }
+        .ad-content { width: 80%; max-width: 300px; background: white; padding: 20px; border-radius: 20px; color: #333; text-align: center; }
+    </style>
+</head>
+<body>
+
+<div class="app-header">
+    <h1 style="margin:0; font-size: 22px;">CoverPages Pro</h1>
+    <p style="margin:5px 0 0; font-size: 12px; opacity: 0.8;">Premium Lab Report Generator</p>
+</div>
+
+<div class="container">
+    <div class="section-title">Step 1: Report Details</div>
+    <div class="card">
+        <div class="row">
+            <div class="input-group">
+                <label>Experiment No</label>
+                <input type="text" id="expNo" placeholder="02" oninput="updatePreview()">
+            </div>
+            <div class="input-group">
+                <label>Module Code</label>
+                <input type="text" id="modCode" placeholder="22CE2119" oninput="updatePreview()">
+            </div>
+        </div>
+        <div class="input-group">
+            <label>Subject Name</label>
+            <input type="text" id="subName" placeholder="CONSTRUCTION TECHNOLOGY AND MATERIALS" oninput="updatePreview()">
+        </div>
+        <div class="input-group">
+            <label>Practical Name</label>
+            <textarea id="pracName" rows="2" placeholder="TESTING COARSE AGGREGATES" oninput="updatePreview()"></textarea>
+        </div>
+    </div>
+
+    <div class="section-title">Step 2: People & Group</div>
+    <div class="card">
+        <label style="font-size: 11px; font-weight:600; color: var(--text-sub); display: block; margin-bottom: 8px;">Instructor Title</label>
+        <div class="chip-container" id="titleChips">
+            <button class="chip" onclick="selectChip('titleChips', this)">Mr.</button>
+            <button class="chip" onclick="selectChip('titleChips', this)">Mrs.</button>
+            <button class="chip active" onclick="selectChip('titleChips', this)">Ms.</button>
+            <button class="chip" onclick="selectChip('titleChips', this)">Miss</button>
+            <button class="chip" onclick="selectChip('titleChips', this)">Dr.</button>
+            <button class="chip" onclick="selectChip('titleChips', this)">Rev.</button>
+        </div>
+        <div class="input-group">
+            <label>Instructed By</label>
+            <input type="text" id="instName" placeholder="S.A.S. WICKRAMASOORIYA" oninput="updatePreview()">
+        </div>
+        <div class="input-group">
+            <label>Group No</label>
+            <input type="text" id="groupNo" placeholder="C2" oninput="updatePreview()">
+        </div>
+        <div class="input-group">
+            <label>Group Members (Reg Nos)</label>
+            <textarea id="groupMembers" rows="4" placeholder="COL/CE/2324/F/016..." oninput="updatePreview()"></textarea>
+        </div>
+    </div>
+
+    <div class="section-title">Step 3: Personal & Dates</div>
+    <div class="card">
+        <div class="input-group">
+            <label>Your Name</label>
+            <input type="text" id="stuName" placeholder="M.P.M. HASHAN" oninput="updatePreview()">
+        </div>
+        <div class="input-group">
+            <label>Registration No</label>
+            <input type="text" id="regNo" placeholder="COL/CE/2324/F/031" oninput="updatePreview()">
+        </div>
+        <label style="font-size: 11px; font-weight:600; color: var(--text-sub); display: block; margin-bottom: 8px;">Course</label>
+        <div class="chip-container" id="courseChips">
+            <button class="chip active" onclick="selectChip('courseChips', this)">HNDCE</button>
+            <button class="chip" onclick="selectChip('courseChips', this)">HNDQS</button>
+            <button class="chip" onclick="selectChip('courseChips', this)">HNDME</button>
+            <button class="chip" onclick="selectChip('courseChips', this)">HNDEE</button>
+        </div>
+        <div class="row">
+            <div class="input-group">
+                <label>Date of Instruction</label>
+                <input type="text" id="dateInst" placeholder="/ / 2025" oninput="updatePreview()">
+            </div>
+            <div class="input-group">
+                <label>Date of Submission</label>
+                <input type="text" id="dateSub" placeholder="/ / 2025" oninput="updatePreview()">
+            </div>
+        </div>
+    </div>
+
+    <button class="btn-export" onclick="startExport()">GENERATE A4 PDF</button>
+
+    <div class="preview-header">
+        <div class="section-title" style="margin:0;">Live Preview</div>
+        <span style="font-size: 10px; color: var(--primary); font-weight: bold;">Real-time</span>
+    </div>
+    
+    <div class="preview-box" id="pdfPreview">
+        <div class="p-border"></div>
+        <div class="p-top-info">
+            <div>EXPERIMENT NO: <span id="v-expNo">02</span></div>
+            <div id="v-subName" style="margin-top:2px;">CONSTRUCTION TECHNOLOGY AND MATERIALS</div>
+            <div id="v-modCode" style="margin-top:2px;">22CE2119</div>
+        </div>
+        <div class="p-center">
+            <div class="p-prac-name" id="v-pracName">TESTING COARSE AGGREGATES</div>
+        </div>
+        <div class="p-instruction">
+            <table>
+                <tr>
+                    <td style="width: 75px;">INSTRUCTED BY</td>
+                    <td style="width: 10px;">:</td>
+                    <td><span id="v-instTitle">MS.</span> <span id="v-instName">S.A.S. WICKRAMASOORIYA</span></td>
+                </tr>
+                <tr>
+                    <td>GROUP</td>
+                    <td>:</td>
+                    <td><span id="v-groupNo">C2</span></td>
+                </tr>
+                <tr>
+                    <td>GROUP MEMBERS</td>
+                    <td>:</td>
+                    <td><span id="v-members">COL/CE/2324/F/016</span></td>
+                </tr>
+            </table>
+        </div>
+        <div class="p-bottom-right">
+            <table>
+                <tr>
+                    <td style="width: 65px;">NAME</td>
+                    <td style="width: 10px;">:</td>
+                    <td><span id="v-stuName">M.P.M. HASHAN</span></td>
+                </tr>
+                <tr>
+                    <td>REG NO</td>
+                    <td>:</td>
+                    <td><span id="v-regNo">COL/CE/2324/F/031</span></td>
+                </tr>
+                <tr>
+                    <td>COURSE</td>
+                    <td>:</td>
+                    <td><span id="v-course">HNDCE</span></td>
+                </tr>
+                <tr>
+                    <td>DATE OF INS</td>
+                    <td>:</td>
+                    <td><span id="v-dateInst">/ / 2025</span></td>
+                </tr>
+                <tr>
+                    <td>DATE OF SUB</td>
+                    <td>:</td>
+                    <td><span id="v-dateSub">/ / 2025</span></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div id="adOverlay">
+    <div class="ad-content">
+        <h3 style="margin:0; color: var(--primary);">Processing PDF</h3>
+        <p style="font-size: 12px;">Wait a moment...</p>
+        <div id="sec" style="font-size: 24px; font-weight: bold; color: var(--primary);">3</div>
+    </div>
+</div>
+
+<script>
+    function selectChip(containerId, element) {
+        document.getElementById(containerId).querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+        element.classList.add('active');
+        updatePreview();
+    }
+
+    function updatePreview() {
+        const getValue = (id, def) => document.getElementById(id).value.toUpperCase() || def;
+        
+        document.getElementById('v-expNo').innerText = getValue('expNo', '02');
+        document.getElementById('v-subName').innerText = getValue('subName', 'CONSTRUCTION TECHNOLOGY AND MATERIALS');
+        document.getElementById('v-modCode').innerText = getValue('modCode', '22CE2119');
+        document.getElementById('v-pracName').innerText = getValue('pracName', 'TESTING COARSE AGGREGATES');
+        document.getElementById('v-instTitle').innerText = document.querySelector('#titleChips .active').innerText.toUpperCase();
+        document.getElementById('v-instName').innerText = getValue('instName', 'S.A.S. WICKRAMASOORIYA');
+        document.getElementById('v-groupNo').innerText = getValue('groupNo', 'C2');
+        document.getElementById('v-stuName').innerText = getValue('stuName', 'M.P.M. HASHAN');
+        document.getElementById('v-regNo').innerText = getValue('regNo', 'COL/CE/2324/F/031');
+        document.getElementById('v-course').innerText = document.querySelector('#courseChips .active').innerText;
+        document.getElementById('v-dateInst').innerText = getValue('dateInst', '/  / 2025');
+        document.getElementById('v-dateSub').innerText = getValue('dateSub', '/  / 2025');
+        
+        const members = document.getElementById('groupMembers').value.split(/[\n,]+/).map(m => m.trim()).filter(m => m);
+        document.getElementById('v-members').innerHTML = members.length > 0 ? members.join('<br>') : 'COL/CE/2324/F/016';
+    }
+
+    function startExport() {
+        const overlay = document.getElementById('adOverlay');
+        const secSpan = document.getElementById('sec');
+        let timeLeft = 3; overlay.style.display = 'flex';
+        const countdown = setInterval(() => {
+            timeLeft--; secSpan.innerText = timeLeft;
+            if (timeLeft <= 0) { clearInterval(countdown); overlay.style.display = 'none'; generatePDF(); }
+        }, 1000);
+    }
+
+    function generatePDF() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+        
+        const data = {
+            expNo: document.getElementById('expNo').value || "02",
+            modCode: (document.getElementById('modCode').value || "22CE2119").toUpperCase(),
+            subName: (document.getElementById('subName').value || "CONSTRUCTION TECHNOLOGY AND MATERIALS").toUpperCase(),
+            pracName: (document.getElementById('pracName').value || "TESTING COARSE AGGREGATES").toUpperCase(),
+            instTitle: document.querySelector('#titleChips .active').innerText.toUpperCase(),
+            instName: (document.getElementById('instName').value || "S.A.S. WICKRAMASOORIYA").toUpperCase(),
+            groupNo: (document.getElementById('groupNo').value || "C2").toUpperCase(),
+            groupMembers: document.getElementById('groupMembers').value,
+            stuName: (document.getElementById('stuName').value || "M.P.M. HASHAN").toUpperCase(),
+            regNo: (document.getElementById('regNo').value || "COL/CE/2324/F/031").toUpperCase(),
+            course: document.querySelector('#courseChips .active').innerText,
+            dateInst: document.getElementById('dateInst').value || "/  / 2025",
+            dateSub: document.getElementById('dateSub').value || "/  / 2025"
+        };
+
+        const ML = 25; const MT = 10; const MR = 10; const MB = 10;
+        const PAGE_W = 210; const PAGE_H = 297;
+        const INNER_W = PAGE_W - ML - MR;
+        const INNER_H = PAGE_H - MT - MB;
+
+        doc.setFont("times", "normal");
+        doc.setLineWidth(0.5);
+        doc.rect(ML, MT, INNER_W, INNER_H); 
+
+        // 1. Top Set (Balanced Size 14 as per photo)
+        doc.setFont("times", "bold"); doc.setFontSize(14);
+        const RIGHT_BLOCK_X = 135; 
+        doc.text(`EXPERIMENT NO: ${data.expNo}`, RIGHT_BLOCK_X, MT + 15);
+        const subLines = doc.splitTextToSize(data.subName, 60);
+        doc.text(subLines, RIGHT_BLOCK_X, MT + 23);
+        doc.text(data.modCode, RIGHT_BLOCK_X, MT + 23 + (subLines.length * 6));
+
+        // 2. Practical Name (Size 26, Underlined)
+        doc.setFontSize(26);
+        const splitPrac = doc.splitTextToSize(data.pracName, INNER_W - 20);
+        const CENTER_X = ML + (INNER_W / 2);
+        let currentY = 160;
+        splitPrac.forEach(line => {
+            doc.text(line, CENTER_X, currentY, { align: 'center' });
+            const tw = doc.getTextWidth(line);
+            doc.line(CENTER_X - (tw/2), currentY + 2, CENTER_X + (tw/2), currentY + 2);
+            currentY += 12;
+        });
+
+        // 3. Instruction & Group (Directly below Practical Name)
+        doc.setFont("times", "normal"); doc.setFontSize(11);
+        let leftY = currentY + 5;
+        const LABEL_X = ML + 10;
+        const VAL_OFFSET = 40;
+        
+        doc.text("INSTRUCTED BY", LABEL_X, leftY);
+        doc.text(":", LABEL_X + VAL_OFFSET - 5, leftY);
+        doc.text(`${data.instTitle} ${data.instName}`, LABEL_X + VAL_OFFSET, leftY);
+        leftY += 7;
+
+        doc.text("GROUP", LABEL_X, leftY);
+        doc.text(":", LABEL_X + VAL_OFFSET - 5, leftY);
+        doc.text(data.groupNo, LABEL_X + VAL_OFFSET, leftY);
+        leftY += 7;
+
+        doc.text("GROUP MEMBERS", LABEL_X, leftY);
+        doc.text(":", LABEL_X + VAL_OFFSET - 5, leftY);
+        const members = data.groupMembers.split(/[\n,]+/).map(m => m.trim()).filter(m => m);
+        members.forEach(m => { doc.text(m, LABEL_X + VAL_OFFSET, leftY); leftY += 6; });
+
+        // 4. Bottom Right Personal Details (Aligned to photo corner)
+        let bY = 250; 
+        const BR_LABEL_X = 138; 
+        const BR_VAL_X = 168;
+        const fields = [
+            ["NAME", data.stuName], ["REG NO", data.regNo], ["COURSE", data.course],
+            ["DATE OF INS", data.dateInst], ["DATE OF SUB", data.dateSub]
+        ];
+        fields.forEach(f => {
+            doc.text(f[0], BR_LABEL_X, bY); doc.text(":", BR_VAL_X - 5, bY); doc.text(f[1], BR_VAL_X, bY);
+            bY += 7;
+        });
+
+        doc.save(`Lab_Report_${data.expNo}.pdf`);
+    }
+    updatePreview(); 
+</script>
+</body>
+</html>
