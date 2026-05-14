@@ -340,6 +340,18 @@
 
         <button class="btn-export" onclick="startExport()">GENERATE A4 PDF</button>
 
+        <div style="text-align: center; margin-top: 30px; padding: 20px; border-top: 1px solid #eee;">
+            <p style="font-size: 13px; color: var(--text-sub); margin-bottom: 5px;">
+                IF YOU HAVE ANY PROBLEM, PLEASE CONTACT US,
+            </p>
+            <a href="mailto:34batchcivilengineering@gmail.com"
+                style="color: var(--primary); font-size: 14px; font-weight: 700; text-decoration: none;">
+                34batchcivilengineering@gmail.com
+            </a>
+            <p style="font-size: 10px; color: #ccc; margin-top: 15px;">© 2025 CoverPages Pro - Civil Engineering 34th
+                Batch</p>
+        </div>
+
     </div>
     </div>
 
@@ -414,9 +426,9 @@
 
         fetchInitialStats();
 
-        // Ad Image URLs (Google Drive links converted to direct links)
-        const ad1_url = "https://drive.google.com/uc?export=view&id=1tRpCqHR7a89wZIb6Buv_mypJQNxsyeee";
-        const ad2_url = "https://drive.google.com/uc?export=view&id=1Z4FzEU2aE8-edIgTyYUN1pPaDFQFrJSX";
+        // Ad Image URLs (Using a more reliable direct link format)
+        const ad1_url = "https://lh3.googleusercontent.com/d/1tRpCqHR7a89wZIb6Buv_mypJQNxsyeee";
+        const ad2_url = "https://lh3.googleusercontent.com/d/1Z4FzEU2aE8-edIgTyYUN1pPaDFQFrJSX";
 
         function updateAds() {
             if (ad1_url) document.getElementById('ad1').innerHTML = `<img src="${ad1_url}" alt="Ad 1">`;
@@ -462,7 +474,7 @@
                 doc.setTextColor(230, 230, 230); // Very light grey
                 doc.setFontSize(100);
                 doc.setFont("times", "bold");
-                
+
                 if (typeof doc.GState === 'function') {
                     doc.saveGraphicsState();
                     doc.setGState(new doc.GState({ opacity: 0.2 }));
