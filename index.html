@@ -469,25 +469,7 @@
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF({ unit: 'mm', format: 'a4' });
 
-            // Add Watermark
-            try {
-                doc.setTextColor(230, 230, 230); // Very light grey
-                doc.setFontSize(100);
-                doc.setFont("times", "bold");
-
-                if (typeof doc.GState === 'function') {
-                    doc.saveGraphicsState();
-                    doc.setGState(new doc.GState({ opacity: 0.2 }));
-                    doc.text("DON'T USE", 105, 150, { align: "center", angle: 45 });
-                    doc.restoreGraphicsState();
-                } else {
-                    // Fallback if GState is not supported
-                    doc.text("DON'T USE", 105, 150, { align: "center", angle: 45 });
-                }
-            } catch (watermarkErr) {
-                console.warn("Watermark failed, continuing without it:", watermarkErr);
-            }
-            doc.setTextColor(0, 0, 0); // Reset to black
+         
 
 
             const data = {
