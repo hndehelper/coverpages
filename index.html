@@ -250,11 +250,19 @@
             </div>
         </div>
 
-        <div class="section-title">Step 1: Report Details</div>
+        <div class="section-title">Step 1: Report Type & Details</div>
         <div class="card">
-            <div class="row">
+            <label
+                style="font-size: 11px; font-weight:600; color: var(--text-sub); display: block; margin-bottom: 8px;">Select
+                Report Type</label>
+            <div class="chip-container" id="typeChips">
+                <button class="chip active" onclick="selectReportType('Experiment', this)">Experiment</button>
+                <button class="chip" onclick="selectReportType('Assignment', this)">Assignment</button>
+            </div>
+
+            <div class="row" style="margin-top: 15px;">
                 <div class="input-group">
-                    <label>Experiment No</label>
+                    <label id="expNoLabel">Experiment No</label>
                     <input type="text" id="expNo" placeholder="##">
                 </div>
                 <div class="input-group">
@@ -367,6 +375,23 @@
 
 
     <script>
+        let selectedReportType = "Experiment";
+
+        function selectReportType(type, element) {
+            selectedReportType = type;
+            selectChip('typeChips', element);
+
+            // Update the label in UI
+            const label = document.getElementById('expNoLabel');
+            if (type === 'Assignment') {
+                label.innerText = "Assignment No";
+                document.getElementById('expNo').placeholder = "##";
+            } else {
+                label.innerText = "Experiment No";
+                document.getElementById('expNo').placeholder = "##";
+            }
+        }
+
         function selectChip(containerId, element) {
             document.getElementById(containerId).querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
             element.classList.add('active');
@@ -469,10 +494,11 @@
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF({ unit: 'mm', format: 'a4' });
 
-         
+
 
 
             const data = {
+                reportType: selectedReportType,
                 expNo: document.getElementById('expNo').value || "##",
                 modCode: (document.getElementById('modCode').value || "SUBJECT CODE").toUpperCase(),
                 subName: (document.getElementById('subName').value || "SUBJECT NAME").toUpperCase(),
@@ -508,7 +534,8 @@
             const boxX = PAGE_W - MR - boxWidth - 5;
             let currentY = MT + 10;
 
-            doc.text(`EXPERIMENT NO: ${data.expNo}`, boxX, currentY);
+            const labelType = data.reportType === 'Assignment' ? 'ASSIGNMENT' : 'EXPERIMENT';
+            doc.text(`${labelType} NO: ${data.expNo}`, boxX, currentY);
 
             doc.setFontSize(20); // අනිත් විස්තර ටික චුට්ටක් කුඩා කළා Box එකට ගැලපෙන්න
             currentY += 10;
@@ -537,34 +564,36 @@
             });
 
             // 3. Instruction & Group (Size 11, Aligned to Topic Start)
-            doc.setFont("times", "normal");
-            doc.setFontSize(11);
-            const infoX = ML + 15;
-            let infoY = 160;
-            const COLON_DIST = 34;
+            if (data.reportType === 'Experiment') {
+                doc.setFont("times", "normal");
+                doc.setFontSize(11);
+                const infoX = ML + 15;
+                let infoY = 160;
+                const COLON_DIST = 34;
 
-            const printLine = (label, value) => {
-                doc.text(label, infoX, infoY);
+                const printLine = (label, value) => {
+                    doc.text(label, infoX, infoY);
+                    doc.text(":", infoX + COLON_DIST, infoY);
+                    doc.text(value, infoX + COLON_DIST + 5, infoY);
+                    infoY += 4;
+                };
+
+                printLine("INSTRUCTED BY", `${data.instTitle} ${data.instName}`);
+                printLine("GROUP", data.groupNo);
+
+                doc.text("GROUP MEMBERS", infoX, infoY);
                 doc.text(":", infoX + COLON_DIST, infoY);
-                doc.text(value, infoX + COLON_DIST + 5, infoY);
-                infoY += 4;
-            };
-
-            printLine("INSTRUCTED BY", `${data.instTitle} ${data.instName}`);
-            printLine("GROUP", data.groupNo);
-
-            doc.text("GROUP MEMBERS", infoX, infoY);
-            doc.text(":", infoX + COLON_DIST, infoY);
-            const members = data.groupMembers.split(/[\n,]+/).map(m => m.trim()).filter(m => m);
-            let memberY = infoY;
-            members.forEach(m => {
-                doc.text(m, infoX + COLON_DIST + 5, memberY);
-                memberY += 4;
-            });
+                const members = data.groupMembers.split(/[\n,]+/).map(m => m.trim()).filter(m => m);
+                let memberY = infoY;
+                members.forEach(m => {
+                    doc.text(m, infoX + COLON_DIST + 5, memberY);
+                    memberY += 4;
+                });
+            }
 
             // 4. Bottom Right Details (Size 11)
             doc.setFontSize(11);
-            const brX = PAGE_W - MR - 70;
+            const brX = PAGE_W - MR - 75;
             let brY = PAGE_H - MB - 20;
             const BR_COLON = 30;
 
