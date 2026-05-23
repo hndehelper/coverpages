@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CoverPages Pro - Admin Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Chart.js and Supabase CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root {
+            --bg-main: #0b0c16;
+            --bg-card: rgba(18, 20, 38, 0.7);
+            --border-glow: rgba(108, 92, 231, 0.2);
+            --primary: #8e44ad;
+            --accent-cyan: #00f2fe;
+            --accent-pink: #ff007f;
+            --accent-purple: #8257e5;
+            --accent-green: #2ecc71;
+            --text-title: #ffffff;
+            --text-body: #a0aec0;
+            --text-muted: #4a5568;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-body);
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(108, 92, 231, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(0, 242, 254, 0.05) 0%, transparent 40%);
+            background-attachment: fixed;
+            padding-bottom: 60px;
+        }
+
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 25px 40px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(11, 12, 22, 0.8);
+        }
+
+        .header-title h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 24px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ffffff 30%, var(--accent-cyan));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header-title p {
+            font-size: 12px;
+            color: var(--text-body);
+            opacity: 0.6;
+            margin-top: 2px;
+        }
+
+        .btn-back {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: white;
+            text-decoration: none;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 10px 20px;
+            border-radius: 14px;
+            font-size: 14px;
+            font-weight: 600;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .btn-back:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(-3px);
+            border-color: rgba(108, 92, 231, 0.4);
+            box-shadow: 0 0 20px rgba(108, 92, 231, 0.2);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+
+        /* Odometer Counter */
+        .live-counter-panel {
+            background: var(--bg-card);
+            border: 1px solid var(--border-glow);
+            border-radius: 24px;
+            padding: 35px;
+            margin-bottom: 30px;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(16px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .live-counter-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 150px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent-cyan), transparent);
+        }
+
+        .counter-label {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--accent-cyan);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--accent-cyan);
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 10px var(--accent-cyan);
+            animation: pulse 1.8s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.9); opacity: 0.6; }
+            50% { transform: scale(1.3); opacity: 1; box-shadow: 0 0 15px var(--accent-cyan); }
+            100% { transform: scale(0.9); opacity: 0.6; }
+        }
+
+        /* Roller Odometer Styles */
+        .odometer-wrapper {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.4);
+            padding: 15px 30px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.8);
+            overflow: hidden;
+            height: 90px;
+        }
+
+        .odometer-digit {
+            position: relative;
+            width: 42px;
+            height: 60px;
+            font-size: 52px;
+            font-weight: 800;
+            font-family: 'Outfit', sans-serif;
+            color: white;
+            overflow: hidden;
+            display: inline-block;
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+        }
+
+        .odometer-digit-reel {
+            position: absolute;
+            top: 0;
+            left: 0;
+            display: flex;
+            flex-direction: column;
+            transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .odometer-digit-reel span {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 60px;
+            width: 42px;
+        }
+
+        .odometer-comma {
+            font-size: 52px;
+            font-weight: 800;
+            color: rgba(255, 255, 255, 0.4);
+            margin: 0 2px;
+            line-height: 50px;
+            align-self: flex-end;
+        }
+
+        /* Stats Grid */
+        .stats-summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .summary-card {
+            background: var(--bg-card);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            border-radius: 20px;
+            padding: 24px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .summary-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        }
+
+        .summary-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .icon-blue { background: rgba(0, 242, 254, 0.1); color: var(--accent-cyan); }
+        .icon-purple { background: rgba(162, 155, 254, 0.1); color: #a29bfe; }
+        .icon-pink { background: rgba(255, 0, 127, 0.1); color: var(--accent-pink); }
+        .icon-green { background: rgba(46, 204, 113, 0.1); color: var(--accent-green); }
+
+        .summary-info h4 {
+            font-size: 12px;
+            color: var(--text-body);
+            opacity: 0.6;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .summary-info p {
+            font-size: 22px;
+            font-weight: 700;
+            color: white;
+            margin-top: 4px;
+        }
+
+        /* Charts Section */
+        .charts-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        @media (max-width: 900px) {
+            .charts-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .chart-card {
+            background: var(--bg-card);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            border-radius: 24px;
+            padding: 28px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(16px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chart-card.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .chart-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+        }
+
+        .chart-title h3 {
+            font-size: 16px;
+            font-weight: 700;
+            color: white;
+        }
+
+        .chart-title p {
+            font-size: 12px;
+            color: var(--text-body);
+            opacity: 0.6;
+            margin-top: 2px;
+        }
+
+        .chart-canvas-wrapper {
+            position: relative;
+            width: 100%;
+            height: 320px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Admin Authentication Overlay -->
+    <div id="loginOverlay" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #0b0c16; z-index: 9999; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(20px);">
+        <div style="background: rgba(18, 20, 38, 0.85); padding: 40px; border-radius: 24px; border: 1px solid rgba(108, 92, 231, 0.3); box-shadow: 0 15px 50px rgba(0, 0, 0, 0.5); text-align: center; max-width: 400px; width: 90%;">
+            <div style="width: 60px; height: 60px; background: rgba(142, 68, 173, 0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00f2fe" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            </div>
+            <h2 style="color: white; font-size: 22px; font-weight: 700; margin-bottom: 8px; font-family: 'Outfit', sans-serif;">Security Verification</h2>
+            <p style="color: #a0aec0; font-size: 13px; margin-bottom: 25px;">Enter the administrator passcode to access analytics.</p>
+            <div style="position: relative; margin-bottom: 20px;">
+                <input type="password" id="adminPassword" placeholder="Enter passcode" style="width: 100%; padding: 14px 20px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; color: white; font-size: 15px; font-weight: 500; outline: none; text-align: center; transition: all 0.3s;" onkeydown="if(event.key==='Enter') checkAdminPassword()">
+            </div>
+            <button id="btnLogin" onclick="checkAdminPassword()" style="width: 100%; padding: 14px; background: linear-gradient(135deg, var(--primary), #8e44ad); border: none; border-radius: 14px; color: white; font-size: 15px; font-weight: 700; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 15px rgba(108, 92, 231, 0.3);">Access Dashboard</button>
+            <p id="loginError" style="color: #ff007f; font-size: 12px; margin-top: 15px; display: none; font-weight: 600;">Incorrect passcode. Try again.</p>
+        </div>
+    </div>
+
+    <header>
+        <div class="header-title">
+            <h1>Analytics Dashboard</h1>
+            <p>CoverPages Pro System Insights</p>
+        </div>
+        <a href="index.html" class="btn-back">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            Back to App
+        </a>
+    </header>
+
+    <div class="container">
+        <!-- Live Counter Section -->
+        <div class="live-counter-panel">
+            <div class="counter-label">
+                <span class="pulse-dot"></span> Live Global Exports
+            </div>
+            <div class="odometer-wrapper" id="liveOdometer">
+                <!-- Digits injected dynamically -->
+            </div>
+        </div>
+
+        <!-- Summary Statistics Grid -->
+        <div class="stats-summary-grid">
+            <div class="summary-card">
+                <div class="summary-icon icon-blue">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                </div>
+                <div class="summary-info">
+                    <h4>Active Users</h4>
+                    <p id="cardLiveUsers">--</p>
+                </div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-icon icon-purple">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h20M20 5c-9.17 0-10 7-18 7M2 12c8 0 9 7 18 7"/></svg>
+                </div>
+                <div class="summary-info">
+                    <h4>Total Ad Impressions</h4>
+                    <p id="cardAdViews">0</p>
+                </div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-icon icon-pink">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M10 14 21 3M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
+                </div>
+                <div class="summary-info">
+                    <h4>Total Ad Clicks</h4>
+                    <p id="cardAdClicks">0</p>
+                </div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-icon icon-green">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                </div>
+                <div class="summary-info">
+                    <h4>Today's Exports</h4>
+                    <p id="cardTodayExports">0</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Grid -->
+        <div class="charts-container">
+            <!-- Line Chart: Daily Exports -->
+            <div class="chart-card full-width">
+                <div class="chart-header">
+                    <div class="chart-title">
+                        <h3>Daily Document Exports</h3>
+                        <p>Total cover pages generated per day</p>
+                    </div>
+                </div>
+                <div class="chart-canvas-wrapper">
+                    <canvas id="exportsChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Line Chart: Ad Activity -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <div class="chart-title">
+                        <h3>Ad Engagement Tracking</h3>
+                        <p>Live tracking of ad views and clicks</p>
+                    </div>
+                </div>
+                <div class="chart-canvas-wrapper">
+                    <canvas id="adsChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Bar Chart: Exports by Batch & Course -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <div class="chart-title">
+                        <h3>Exports by Course & Year</h3>
+                        <p>Breakdown of badge selections used</p>
+                    </div>
+                </div>
+                <div class="chart-canvas-wrapper">
+                    <canvas id="badgesChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Supabase Configuration ---
+        const SUPABASE_URL = "https://rmkjsttcpxtekjuozvbt.supabase.co";
+        const SUPABASE_ANON_KEY = "sb_publishable_UFNshGDC-p38BEeY1ZtfHg_MdSnWa8x";
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // Chart instances
+        let exportsChart, adsChart, badgesChart;
+        let currentCount = 14520;
+
+        // Odometer setup
+        function initOdometer(targetNum) {
+            const wrapper = document.getElementById('liveOdometer');
+            wrapper.innerHTML = '';
+            
+            const numStr = targetNum.toLocaleString('en-US');
+            
+            for (let char of numStr) {
+                if (char === ',') {
+                    const comma = document.createElement('span');
+                    comma.className = 'odometer-comma';
+                    comma.innerText = ',';
+                    wrapper.appendChild(comma);
+                } else {
+                    const digit = document.createElement('div');
+                    digit.className = 'odometer-digit';
+                    
+                    const reel = document.createElement('div');
+                    reel.className = 'odometer-digit-reel';
+                    
+                    // Create stack 0-9
+                    for (let i = 0; i <= 9; i++) {
+                        const span = document.createElement('span');
+                        span.innerText = i;
+                        reel.appendChild(span);
+                    }
+                    
+                    digit.appendChild(reel);
+                    wrapper.appendChild(digit);
+                }
+            }
+            updateOdometer(targetNum);
+        }
+
+        function updateOdometer(targetNum) {
+            const wrapper = document.getElementById('liveOdometer');
+            const numStr = targetNum.toLocaleString('en-US');
+            
+            // Check if count of elements matches string length (excluding commas vs digits)
+            const digitsOnly = numStr.replace(/,/g, '');
+            const reels = wrapper.querySelectorAll('.odometer-digit-reel');
+            
+            if (reels.length !== digitsOnly.length) {
+                // Re-initialize if length changed
+                initOdometer(targetNum);
+                return;
+            }
+            
+            for (let i = 0; i < reels.length; i++) {
+                const val = parseInt(digitsOnly[i]);
+                reels[i].style.transform = `translateY(-${val * 60}px)`;
+            }
+        }
+
+        // Realtime Presences & Stats
+        async function fetchLiveStats() {
+            try {
+                // Fetch exports count
+                const { data, error } = await supabaseClient
+                    .from('app_stats')
+                    .select('stat_value')
+                    .eq('stat_name', 'total_exports')
+                    .single();
+
+                if (data) {
+                    currentCount = data.stat_value;
+                    updateOdometer(currentCount);
+                }
+            } catch (err) {
+                console.error("Error fetching stats:", err);
+            }
+        }
+
+        // Realtime subscriptions
+        supabaseClient
+            .channel('public:app_stats')
+            .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'app_stats' }, payload => {
+                if (payload.new.stat_name === 'total_exports') {
+                    currentCount = payload.new.stat_value;
+                    updateOdometer(currentCount);
+                    // Dynamically increment daily charts if visible
+                    incrementRealtimeChart();
+                }
+            })
+            .subscribe();
+
+        const presenceChannel = supabaseClient.channel('online-users');
+        presenceChannel
+            .on('presence', { event: 'sync' }, () => {
+                const state = presenceChannel.presenceState();
+                const count = Object.keys(state).length;
+                document.getElementById('cardLiveUsers').innerText = count;
+            })
+            .subscribe(async (status) => {
+                if (status === 'SUBSCRIBED') {
+                    await presenceChannel.track({ online_at: new Date().toISOString() });
+                }
+            });
+
+        // Generate daily label list
+        const getLast7Days = () => {
+            const labels = [];
+            for (let i = 6; i >= 0; i--) {
+                const d = new Date();
+                d.setDate(d.getDate() - i);
+                labels.push(d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }));
+            }
+            return labels;
+        };
+
+        // Live charts updates
+        function incrementRealtimeChart() {
+            if (exportsChart) {
+                const len = exportsChart.data.datasets[0].data.length;
+                exportsChart.data.datasets[0].data[len - 1] += 1;
+                exportsChart.update();
+            }
+            // Increment today's count in card
+            const todayElem = document.getElementById('cardTodayExports');
+            if (todayElem) {
+                const currentToday = parseInt(todayElem.innerText.replace(/,/g, '')) || 0;
+                todayElem.innerText = (currentToday + 1).toLocaleString();
+            }
+        }
+
+        // Load DB analytics (no mock data fallback, defaults to zeros if empty)
+        async function loadSupabaseAnalytics() {
+            try {
+                // Fetch actual export stats
+                const { data: exportLogs, error: err1 } = await supabaseClient
+                    .from('export_logs')
+                    .select('course, academic_year, created_at');
+                
+                const { data: adLogs, error: err2 } = await supabaseClient
+                    .from('ad_logs')
+                    .select('event_type, created_at');
+
+                processAndDisplayData(exportLogs || [], adLogs || []);
+            } catch (e) {
+                console.warn("Analytics querying error, defaulting to zero datasets:", e);
+                processAndDisplayData([], []);
+            }
+        }
+
+        function processAndDisplayData(exportLogs, adLogs) {
+            const days = getLast7Days();
+            const dailyExpCounts = Array(7).fill(0);
+            const dailyViewsCounts = Array(7).fill(0);
+            const dailyClicksCounts = Array(7).fill(0);
+
+            const today = new Date();
+            const dateMap = {};
+            for (let i = 0; i < 7; i++) {
+                const d = new Date();
+                d.setDate(today.getDate() - i);
+                const key = d.toISOString().split('T')[0];
+                dateMap[key] = 6 - i; // map date string to index in array (0 to 6)
+            }
+
+            // Populate exports and calculate today's count
+            const todayStr = today.toISOString().split('T')[0];
+            let todayCount = 0;
+
+            exportLogs.forEach(log => {
+                if (log.created_at) {
+                    const dateStr = log.created_at.split('T')[0];
+                    if (dateMap[dateStr] !== undefined) {
+                        dailyExpCounts[dateMap[dateStr]]++;
+                    }
+                    if (dateStr === todayStr) {
+                        todayCount++;
+                    }
+                }
+            });
+
+            // Set today's count
+            document.getElementById('cardTodayExports').innerText = todayCount.toLocaleString();
+
+            // Populate Ads
+            let totalViews = 0;
+            let totalClicks = 0;
+            if (adLogs) {
+                adLogs.forEach(log => {
+                    if (log.created_at) {
+                        const dateStr = log.created_at.split('T')[0];
+                        const idx = dateMap[dateStr];
+                        if (log.event_type === 'view') {
+                            totalViews++;
+                            if (idx !== undefined) dailyViewsCounts[idx]++;
+                        } else if (log.event_type === 'click') {
+                            totalClicks++;
+                            if (idx !== undefined) dailyClicksCounts[idx]++;
+                        }
+                    }
+                });
+            }
+
+            // Set text elements
+            document.getElementById('cardAdViews').innerText = totalViews.toLocaleString();
+            document.getElementById('cardAdClicks').innerText = totalClicks.toLocaleString();
+
+            // Aggregate course/year badges
+            const badgeCounters = {};
+            exportLogs.forEach(log => {
+                const badgeLabel = `${log.academic_year || '2324'} ${log.course || 'HNDCE'}`;
+                badgeCounters[badgeLabel] = (badgeCounters[badgeLabel] || 0) + 1;
+            });
+
+            // Sort and take top 6 badge types
+            const sortedBadges = Object.keys(badgeCounters)
+                .map(key => ({ label: key, value: badgeCounters[key] }))
+                .sort((a, b) => b.value - a.value)
+                .slice(0, 6);
+
+            const badgeLabels = sortedBadges.map(item => item.label);
+            const badgeData = sortedBadges.map(item => item.value);
+
+            // Render Chart.js with actual aggregated data
+            // 1. Exports
+            const ctxExports = document.getElementById('exportsChart').getContext('2d');
+            exportsChart = new Chart(ctxExports, {
+                type: 'line',
+                data: {
+                    labels: days,
+                    datasets: [{
+                        label: 'Generated Reports',
+                        data: dailyExpCounts,
+                        borderColor: '#00f2fe',
+                        backgroundColor: 'rgba(0, 242, 254, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: '#00f2fe',
+                        pointBorderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#a0aec0' } },
+                        x: { grid: { display: false }, ticks: { color: '#a0aec0' } }
+                    }
+                }
+            });
+
+            // 2. Ads
+            const ctxAds = document.getElementById('adsChart').getContext('2d');
+            adsChart = new Chart(ctxAds, {
+                type: 'line',
+                data: {
+                    labels: days,
+                    datasets: [
+                        { label: 'Ad Views', data: dailyViewsCounts, borderColor: '#a29bfe', backgroundColor: 'transparent', borderWidth: 2, tension: 0.3 },
+                        { label: 'Ad Clicks', data: dailyClicksCounts, borderColor: '#ff007f', backgroundColor: 'transparent', borderWidth: 2, tension: 0.3 }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { labels: { color: '#a0aec0' } } },
+                    scales: {
+                        y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#a0aec0' } },
+                        x: { grid: { display: false }, ticks: { color: '#a0aec0' } }
+                    }
+                }
+            });
+
+            // 3. Badges
+            const ctxBadges = document.getElementById('badgesChart').getContext('2d');
+            badgesChart = new Chart(ctxBadges, {
+                type: 'bar',
+                data: {
+                    labels: badgeLabels.length > 0 ? badgeLabels : ['No Data'],
+                    datasets: [{
+                        label: 'Exports count',
+                        data: badgeData.length > 0 ? badgeData : [0],
+                        backgroundColor: ['#00f2fe', '#8e44ad', '#ff007f', '#8257e5', '#a29bfe', '#f1c40f'],
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#a0aec0' } },
+                        x: { grid: { display: false }, ticks: { color: '#a0aec0' } }
+                    }
+                }
+            });
+        }
+
+        function checkAdminPassword() {
+            const pwd = document.getElementById('adminPassword').value;
+            if (pwd === '2004200301051709') {
+                sessionStorage.setItem('admin_authenticated', 'true');
+                document.getElementById('loginOverlay').style.display = 'none';
+                initPageData();
+            } else {
+                const err = document.getElementById('loginError');
+                err.style.display = 'block';
+                const input = document.getElementById('adminPassword');
+                input.style.borderColor = '#ff007f';
+                input.value = '';
+            }
+        }
+
+        function initPageData() {
+            initOdometer(currentCount);
+            fetchLiveStats().then(() => {
+                loadSupabaseAnalytics();
+            });
+            // Refresh stats counter every 15 seconds
+            setInterval(fetchLiveStats, 15000);
+        }
+
+        // Check session status on DOM ready
+        window.addEventListener('DOMContentLoaded', () => {
+            if (sessionStorage.getItem('admin_authenticated') === 'true') {
+                document.getElementById('loginOverlay').style.display = 'none';
+                initPageData();
+            } else {
+                document.getElementById('loginOverlay').style.display = 'flex';
+                document.getElementById('adminPassword').focus();
+            }
+        });
+    </script>
+</body>
+
+</html>

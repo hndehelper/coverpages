@@ -269,7 +269,10 @@
 
 <body>
 
-    <div class="app-header">
+    <div class="app-header" style="position: relative;">
+        <a href="admin.html" style="position: absolute; right: 20px; top: 25px; color: white; text-decoration: none; font-size: 13px; font-weight: 600; padding: 6px 12px; background: rgba(255,255,255,0.2); border-radius: 20px; backdrop-filter: blur(5px); display: flex; align-items: center; gap: 5px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.1a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg> Admin
+        </a>
         <h1 style="margin:0; font-size: 22px;">CoverPages Pro</h1>
         <p style="margin:5px 0 0; font-size: 12px; opacity: 0.8;">Premium Lab Report Generator</p>
     </div>
@@ -370,7 +373,16 @@
                 <button class="chip" onclick="selectChip('courseChips', this)">HNDBSE</button>
                 <button class="chip" onclick="selectChip('courseChips', this)">HNDEE</button>
             </div>
-            <div class="row">
+            <label
+                style="font-size: 11px; font-weight:600; color: var(--text-sub); display: block; margin-bottom: 8px; margin-top: 15px;">Academic Year</label>
+            <div class="chip-container" id="yearChips">
+                <button class="chip" onclick="selectChip('yearChips', this)">2021</button>
+                <button class="chip" onclick="selectChip('yearChips', this)">2022</button>
+                <button class="chip active" onclick="selectChip('yearChips', this)">2324</button>
+                <button class="chip" onclick="selectChip('yearChips', this)">2025</button>
+                <button class="chip" onclick="selectChip('yearChips', this)">2026</button>
+            </div>
+            <div class="row" style="margin-top: 15px;">
                 <div class="input-group">
                     <label>Date of Instruction</label>
                     <input type="text" id="dateInst" placeholder="/ / 2025">
@@ -498,12 +510,30 @@
         fetchInitialStats();
 
         // Ad Image URLs (Using a more reliable direct link format)
-        const ad1_url = "https://lh3.googleusercontent.com/d/1QRH__Tnbukke33mWOdtME6jO00MpLxwf";
-        const ad2_url = "https://lh3.googleusercontent.com/d/1ejk61zKZhdmjbE6kcMnUiChqkeTDgYt1";
+        const ad1_url = "https://lh3.googleusercontent.com/d/1tRpCqHR7a89wZIb6Buv_mypJQNxsyeee";
+        const ad2_url = "https://lh3.googleusercontent.com/d/1Z4FzEU2aE8-edIgTyYUN1pPaDFQFrJSX";
+
+        async function logAdEvent(type, adId) {
+            try {
+                await supabaseClient.from('ad_logs').insert([{
+                    event_type: type,
+                    ad_id: adId,
+                    created_at: new Date().toISOString()
+                }]);
+            } catch (err) {
+                console.warn("Ad log failed:", err);
+            }
+        }
 
         function updateAds() {
-            if (ad1_url) document.getElementById('ad1').innerHTML = `<img src="${ad1_url}" alt="Ad 1">`;
-            if (ad2_url) document.getElementById('ad2').innerHTML = `<img src="${ad2_url}" alt="Ad 2">`;
+            if (ad1_url) {
+                document.getElementById('ad1').innerHTML = `<a href="https://hndehelper.github.io/coverpages/" target="_blank" onclick="logAdEvent('click', 'ad1')"><img src="${ad1_url}" alt="Ad 1"></a>`;
+                logAdEvent('view', 'ad1');
+            }
+            if (ad2_url) {
+                document.getElementById('ad2').innerHTML = `<a href="https://hndehelper.github.io/coverpages/" target="_blank" onclick="logAdEvent('click', 'ad2')"><img src="${ad2_url}" alt="Ad 2"></a>`;
+                logAdEvent('view', 'ad2');
+            }
         }
         updateAds();
 
@@ -516,9 +546,13 @@
 
             // --- CONFIGURATION ---
             // ad link : Update this URL for the 1:1 Image
-            document.getElementById('adBigImage').src = "https://lh3.googleusercontent.com/d/1WGbqIuPQ25081NxlVWXsHHfDGigHVRMF"; 
+            document.getElementById('adBigImage').src = "https://lh3.googleusercontent.com/d/1q_mBnj07GR_7DJbC5uVVM3VJQpewus3v"; 
             // touch link : Update this for the redirection
-            document.getElementById('adTouchLink').href = "https://www.facebook.com/marketplace/item/997431929633459/?mibextid=dXMIcH"; 
+            document.getElementById('adTouchLink').href = "https://hndehelper.github.io/coverpages/"; 
+            document.getElementById('adTouchLink').onclick = function() {
+                logAdEvent('click', 'big_ad');
+            };
+            logAdEvent('view', 'big_ad'); 
 
             // Random waiting time between 15 and 25 seconds
             let timeLeft = Math.floor(Math.random() * (25 - 15 + 1)) + 15;
@@ -558,6 +592,29 @@
                 document.getElementById('totalExports').innerText = globalExportCount.toLocaleString();
             }
 
+            // Log export details to Supabase for analysis (safely caught)
+            try {
+                const activeYear = document.querySelector('#yearChips .active') ? document.querySelector('#yearChips .active').innerText : '2324';
+                const activeCourse = document.querySelector('#courseChips .active') ? document.querySelector('#courseChips .active').innerText : '';
+                await supabaseClient.from('export_logs').insert([{
+                    report_type: selectedReportType,
+                    exp_no: document.getElementById('expNo').value || "##",
+                    module_code: (document.getElementById('modCode').value || "SUBJECT CODE").toUpperCase(),
+                    subject_name: (document.getElementById('subName').value || "SUBJECT NAME").toUpperCase(),
+                    practical_name: (document.getElementById('pracName').value || "PRACTICAL NAME").toUpperCase(),
+                    instructor_name: `${document.querySelector('#titleChips .active').innerText.toUpperCase()} ${(document.getElementById('instName').value || "LECTURERS NAME").toUpperCase()}`,
+                    group_no: (document.getElementById('groupNo').value || "C2").toUpperCase(),
+                    student_name: (document.getElementById('stuName').value || "YOUR NAME").toUpperCase(),
+                    reg_no: (document.getElementById('regNo').value || "COL/##/####/F/###").toUpperCase(),
+                    course: activeCourse,
+                    academic_year: activeYear,
+                    date_instruction: document.getElementById('dateInst').value || "##/##/202#",
+                    date_submission: document.getElementById('dateSub').value || "##/##/202#"
+                }]);
+            } catch (err) {
+                console.warn("Analytics insert failed:", err);
+            }
+
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF({ unit: 'mm', format: 'a4' });
 
@@ -577,6 +634,7 @@
                 stuName: (document.getElementById('stuName').value || "YOUR NAME").toUpperCase(),
                 regNo: (document.getElementById('regNo').value || "COL/##/####/F/###").toUpperCase(),
                 course: document.querySelector('#courseChips .active').innerText,
+                academicYear: document.querySelector('#yearChips .active') ? document.querySelector('#yearChips .active').innerText : '2324',
                 dateInst: document.getElementById('dateInst').value || "##/##/202#",
                 dateSub: document.getElementById('dateSub').value || "##/##/202#"
             };
