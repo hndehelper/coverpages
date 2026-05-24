@@ -4,511 +4,479 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CoverPages Pro - Admin Dashboard</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <!-- Chart.js and Supabase CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>CoverPages Pro - Generator & Preview</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
-            --bg-main: #0b0c16;
-            --bg-card: rgba(18, 20, 38, 0.7);
-            --border-glow: rgba(108, 92, 231, 0.2);
-            --primary: #8e44ad;
-            --accent-cyan: #00f2fe;
-            --accent-pink: #ff007f;
-            --accent-purple: #8257e5;
-            --accent-green: #2ecc71;
-            --text-title: #ffffff;
-            --text-body: #a0aec0;
-            --text-muted: #4a5568;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Plus Jakarta Sans', sans-serif;
+            --primary: #6c5ce7;
+            --primary-light: #a29bfe;
+            --bg: #f8f9fd;
+            --text-main: #2d3436;
+            --text-sub: #636e72;
+            --card-bg: #ffffff;
+            --input-bg: #f0f3f9;
         }
 
         body {
-            background-color: var(--bg-main);
-            color: var(--text-body);
-            min-height: 100vh;
-            background-image: 
-                radial-gradient(circle at 10% 20%, rgba(108, 92, 231, 0.08) 0%, transparent 40%),
-                radial-gradient(circle at 90% 80%, rgba(0, 242, 254, 0.05) 0%, transparent 40%);
-            background-attachment: fixed;
-            padding-bottom: 60px;
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            margin: 0;
+            color: var(--text-main);
+            padding-bottom: 50px;
         }
 
-        header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 25px 40px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            background: rgba(11, 12, 22, 0.8);
-        }
-
-        .header-title h1 {
-            font-family: 'Outfit', sans-serif;
-            font-size: 24px;
-            font-weight: 800;
-            background: linear-gradient(135deg, #ffffff 30%, var(--accent-cyan));
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .header-title p {
-            font-size: 12px;
-            color: var(--text-body);
-            opacity: 0.6;
-            margin-top: 2px;
-        }
-
-        .btn-back {
-            display: flex;
-            align-items: center;
-            gap: 8px;
+        .app-header {
+            background: linear-gradient(135deg, var(--primary), #8e44ad);
             color: white;
-            text-decoration: none;
-            background: rgba(255, 255, 255, 0.05);
-            padding: 10px 20px;
-            border-radius: 14px;
-            font-size: 14px;
-            font-weight: 600;
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .btn-back:hover {
-            background: rgba(255, 255, 255, 0.1);
-            transform: translateX(-3px);
-            border-color: rgba(108, 92, 231, 0.4);
-            box-shadow: 0 0 20px rgba(108, 92, 231, 0.2);
+            padding: 25px 20px;
+            text-align: center;
+            border-bottom-left-radius: 30px;
+            border-bottom-right-radius: 30px;
+            box-shadow: 0 4px 15px rgba(108, 92, 231, 0.3);
+            margin-bottom: 20px;
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 500px;
             margin: 0 auto;
-            padding: 30px 20px;
+            padding: 0 15px;
         }
 
-        /* Odometer Counter */
-        .live-counter-panel {
-            background: var(--bg-card);
-            border: 1px solid var(--border-glow);
-            border-radius: 24px;
-            padding: 35px;
-            margin-bottom: 30px;
-            text-align: center;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-            backdrop-filter: blur(16px);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .live-counter-panel::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 150px;
-            height: 2px;
-            background: linear-gradient(90deg, transparent, var(--accent-cyan), transparent);
-        }
-
-        .counter-label {
-            font-size: 14px;
+        .section-title {
+            font-size: 16px;
             font-weight: 700;
-            color: var(--accent-cyan);
-            text-transform: uppercase;
-            letter-spacing: 2px;
+            margin: 25px 0 10px 5px;
+            color: var(--text-main);
+        }
+
+        .card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.05);
             margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
         }
 
-        .pulse-dot {
-            width: 8px;
-            height: 8px;
-            background: var(--accent-cyan);
-            border-radius: 50%;
-            display: inline-block;
-            box-shadow: 0 0 10px var(--accent-cyan);
-            animation: pulse 1.8s infinite;
+        .input-group {
+            margin-bottom: 15px;
         }
 
-        @keyframes pulse {
-            0% { transform: scale(0.9); opacity: 0.6; }
-            50% { transform: scale(1.3); opacity: 1; box-shadow: 0 0 15px var(--accent-cyan); }
-            100% { transform: scale(0.9); opacity: 0.6; }
+        .input-group label {
+            display: block;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-sub);
+            margin-bottom: 5px;
+            margin-left: 5px;
         }
 
-        /* Roller Odometer Styles */
-        .odometer-wrapper {
-            display: inline-flex;
-            justify-content: center;
-            align-items: center;
-            background: rgba(0, 0, 0, 0.4);
-            padding: 15px 30px;
-            border-radius: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.8);
-            overflow: hidden;
-            height: 90px;
-        }
-
-        .odometer-digit {
-            position: relative;
-            width: 42px;
-            height: 60px;
-            font-size: 52px;
-            font-weight: 800;
-            font-family: 'Outfit', sans-serif;
-            color: white;
-            overflow: hidden;
-            display: inline-block;
-            text-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
-        }
-
-        .odometer-digit-reel {
-            position: absolute;
-            top: 0;
-            left: 0;
-            display: flex;
-            flex-direction: column;
-            transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        .odometer-digit-reel span {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 60px;
-            width: 42px;
-        }
-
-        .odometer-comma {
-            font-size: 52px;
-            font-weight: 800;
-            color: rgba(255, 255, 255, 0.4);
-            margin: 0 2px;
-            line-height: 50px;
-            align-self: flex-end;
-        }
-
-        /* Stats Grid */
-        .stats-summary-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .summary-card {
-            background: var(--bg-card);
-            border: 1px solid rgba(255, 255, 255, 0.03);
-            border-radius: 20px;
-            padding: 24px;
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            backdrop-filter: blur(10px);
+        input,
+        textarea {
+            width: 100%;
+            padding: 12px 15px;
+            background: var(--input-bg);
+            border: 1px solid #dfe6e9;
+            border-radius: 12px;
+            font-size: 14px;
+            font-family: inherit;
+            box-sizing: border-box;
             transition: all 0.3s ease;
         }
 
-        .summary-card:hover {
-            transform: translateY(-2px);
-            border-color: rgba(255, 255, 255, 0.08);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        input:focus,
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary-light);
+            background: #fff;
         }
 
-        .summary-icon {
-            width: 48px;
-            height: 48px;
-            border-radius: 14px;
+        .chip-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .chip {
+            padding: 8px 15px;
+            background: var(--input-bg);
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            color: var(--text-sub);
+        }
+
+        .chip.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .row>div {
+            flex: 1;
+        }
+
+        .btn-export {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, var(--primary), #8e44ad);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 10px;
+            box-shadow: 0 6px 20px rgba(108, 92, 231, 0.4);
+        }
+
+        /* Banner Ads */
+        .ad-banner {
+            width: 100%;
+            aspect-ratio: 4 / 1;
+            background: #eee;
+            margin: 15px 0;
+            border-radius: 15px;
+            overflow: hidden;
             display: flex;
             align-items: center;
             justify-content: center;
+            border: 1px solid #ddd;
         }
 
-        .icon-blue { background: rgba(0, 242, 254, 0.1); color: var(--accent-cyan); }
-        .icon-purple { background: rgba(162, 155, 254, 0.1); color: #a29bfe; }
-        .icon-pink { background: rgba(255, 0, 127, 0.1); color: var(--accent-pink); }
-        .icon-green { background: rgba(46, 204, 113, 0.1); color: var(--accent-green); }
-
-        .summary-info h4 {
-            font-size: 12px;
-            color: var(--text-body);
-            opacity: 0.6;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+        .ad-banner img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
-        .summary-info p {
-            font-size: 22px;
+        /* Live Stats Dashboard */
+        .stats-bar {
+            display: flex;
+            justify-content: space-around;
+            padding: 15px;
+            background: white;
+            border-radius: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            display: block;
+            font-size: 18px;
             font-weight: 700;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--text-sub);
+            text-transform: uppercase;
+        }
+
+        #adOverlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 3000;
             color: white;
-            margin-top: 4px;
+            backdrop-filter: blur(15px);
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
         }
 
-        /* Charts Section */
-        .charts-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-        }
-
-        @media (max-width: 900px) {
-            .charts-container {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .chart-card {
-            background: var(--bg-card);
-            border: 1px solid rgba(255, 255, 255, 0.03);
-            border-radius: 24px;
-            padding: 28px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
-            backdrop-filter: blur(16px);
+        .ad-content-new {
+            width: 90%;
+            max-width: 380px;
+            background: white;
+            border-radius: 30px;
+            overflow: hidden;
+            color: #333;
+            text-align: center;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
             display: flex;
             flex-direction: column;
         }
 
-        .chart-card.full-width {
-            grid-column: 1 / -1;
+        .ad-image-container {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            background: #f0f0f0;
+            cursor: pointer;
+            overflow: hidden;
         }
 
-        .chart-header {
+        .ad-image-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .ad-image-container:hover img {
+            transform: scale(1.05);
+        }
+
+        .ad-footer {
+            padding: 20px;
             display: flex;
+            flex-direction: column;
             align-items: center;
-            justify-content: space-between;
-            margin-bottom: 24px;
         }
 
-        .chart-title h3 {
+        #btnConfirmExport {
+            display: none;
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            color: white;
+            border: none;
+            border-radius: 15px;
             font-size: 16px;
             font-weight: 700;
-            color: white;
+            cursor: pointer;
+            margin-top: 10px;
+            box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3);
         }
 
-        .chart-title p {
+        .timer-small {
             font-size: 12px;
-            color: var(--text-body);
-            opacity: 0.6;
-            margin-top: 2px;
-        }
-
-        .chart-canvas-wrapper {
-            position: relative;
-            width: 100%;
-            height: 320px;
+            color: #999;
+            margin-top: 5px;
+            font-weight: 600;
         }
     </style>
 </head>
 
 <body>
 
-    <!-- Admin Authentication Overlay -->
-    <div id="loginOverlay" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #0b0c16; z-index: 9999; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(20px);">
-        <div style="background: rgba(18, 20, 38, 0.85); padding: 40px; border-radius: 24px; border: 1px solid rgba(108, 92, 231, 0.3); box-shadow: 0 15px 50px rgba(0, 0, 0, 0.5); text-align: center; max-width: 400px; width: 90%;">
-            <div style="width: 60px; height: 60px; background: rgba(142, 68, 173, 0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00f2fe" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-            </div>
-            <h2 style="color: white; font-size: 22px; font-weight: 700; margin-bottom: 8px; font-family: 'Outfit', sans-serif;">Security Verification</h2>
-            <p style="color: #a0aec0; font-size: 13px; margin-bottom: 25px;">Enter the administrator passcode to access analytics.</p>
-            <div style="position: relative; margin-bottom: 20px;">
-                <input type="password" id="adminPassword" placeholder="Enter passcode" style="width: 100%; padding: 14px 20px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; color: white; font-size: 15px; font-weight: 500; outline: none; text-align: center; transition: all 0.3s;" onkeydown="if(event.key==='Enter') checkAdminPassword()">
-            </div>
-            <button id="btnLogin" onclick="checkAdminPassword()" style="width: 100%; padding: 14px; background: linear-gradient(135deg, var(--primary), #8e44ad); border: none; border-radius: 14px; color: white; font-size: 15px; font-weight: 700; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 15px rgba(108, 92, 231, 0.3);">Access Dashboard</button>
-            <p id="loginError" style="color: #ff007f; font-size: 12px; margin-top: 15px; display: none; font-weight: 600;">Incorrect passcode. Try again.</p>
-        </div>
-    </div>
-
-    <header>
-        <div class="header-title">
-            <h1>Analytics Dashboard</h1>
-            <p>CoverPages Pro System Insights</p>
-        </div>
-        <a href="index.html" class="btn-back">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-            Back to App
+    <div class="app-header" style="position: relative;">
+        <a href="admin.html"
+            style="position: absolute; right: 20px; top: 25px; color: white; text-decoration: none; font-size: 13px; font-weight: 600; padding: 6px 12px; background: rgba(255,255,255,0.2); border-radius: 20px; backdrop-filter: blur(5px); display: flex; align-items: center; gap: 5px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path
+                    d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.1a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
+                <circle cx="12" cy="12" r="3" />
+            </svg> Admin
         </a>
-    </header>
+        <h1 style="margin:0; font-size: 22px;">CoverPages Pro</h1>
+        <p style="margin:5px 0 0; font-size: 12px; opacity: 0.8;">Premium Lab Report Generator</p>
+    </div>
 
     <div class="container">
-        <!-- Live Counter Section -->
-        <div class="live-counter-panel">
-            <div class="counter-label">
-                <span class="pulse-dot"></span> Live Global Exports
+        <div class="stats-bar">
+            <div class="stat-item">
+                <span class="stat-value" id="liveUsers">--</span>
+                <span class="stat-label">Live Users</span>
             </div>
-            <div class="odometer-wrapper" id="liveOdometer">
-                <!-- Digits injected dynamically -->
-            </div>
-        </div>
-
-        <!-- Summary Statistics Grid -->
-        <div class="stats-summary-grid">
-            <div class="summary-card">
-                <div class="summary-icon icon-blue">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                </div>
-                <div class="summary-info">
-                    <h4>Active Users</h4>
-                    <p id="cardLiveUsers">--</p>
-                </div>
-            </div>
-            <div class="summary-card">
-                <div class="summary-icon icon-purple">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h20M20 5c-9.17 0-10 7-18 7M2 12c8 0 9 7 18 7"/></svg>
-                </div>
-                <div class="summary-info">
-                    <h4>Total Ad Impressions</h4>
-                    <p id="cardAdViews">0</p>
-                </div>
-            </div>
-            <div class="summary-card">
-                <div class="summary-icon icon-pink">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M10 14 21 3M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
-                </div>
-                <div class="summary-info">
-                    <h4>Total Ad Clicks</h4>
-                    <p id="cardAdClicks">0</p>
-                </div>
-            </div>
-            <div class="summary-card">
-                <div class="summary-icon icon-green">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-                </div>
-                <div class="summary-info">
-                    <h4>Today's Exports</h4>
-                    <p id="cardTodayExports">0</p>
-                </div>
+            <div class="stat-item">
+                <span class="stat-value" id="totalExports">--</span>
+                <span class="stat-label">Total Exports</span>
             </div>
         </div>
 
-        <!-- Charts Grid -->
-        <div class="charts-container">
-            <!-- Line Chart: Daily Exports -->
-            <div class="chart-card full-width">
-                <div class="chart-header">
-                    <div class="chart-title">
-                        <h3>Daily Document Exports</h3>
-                        <p>Total cover pages generated per day</p>
-                    </div>
-                </div>
-                <div class="chart-canvas-wrapper">
-                    <canvas id="exportsChart"></canvas>
-                </div>
+        <div class="section-title">Step 1: Report Type & Details</div>
+        <div class="card">
+            <label
+                style="font-size: 11px; font-weight:600; color: var(--text-sub); display: block; margin-bottom: 8px;">Select
+                Report Type</label>
+            <div class="chip-container" id="typeChips">
+                <button class="chip active" onclick="selectReportType('Experiment', this)">Experiment</button>
+                <button class="chip" onclick="selectReportType('Assignment', this)">Assignment</button>
             </div>
 
-            <!-- Line Chart: Ad Activity -->
-            <div class="chart-card">
-                <div class="chart-header">
-                    <div class="chart-title">
-                        <h3>Ad Engagement Tracking</h3>
-                        <p>Live tracking of ad views and clicks</p>
-                    </div>
+            <div class="row" style="margin-top: 15px;">
+                <div class="input-group">
+                    <label id="expNoLabel">Experiment No</label>
+                    <input type="text" id="expNo" placeholder="##">
                 </div>
-                <div class="chart-canvas-wrapper">
-                    <canvas id="adsChart"></canvas>
+                <div class="input-group">
+                    <label>Module Code</label>
+                    <input type="text" id="modCode" placeholder="SUBJECT CODE">
                 </div>
             </div>
+            <div class="input-group">
+                <label>Subject Name</label>
+                <input type="text" id="subName" placeholder="SUB">
+            </div>
+            <div class="input-group">
+                <label>Practical Name</label>
+                <textarea id="pracName" rows="2" placeholder="PRACTICAL NAME"></textarea>
+            </div>
+        </div>
 
-            <!-- Bar Chart: Exports by Batch & Course -->
-            <div class="chart-card">
-                <div class="chart-header">
-                    <div class="chart-title">
-                        <h3>Exports by Course & Year</h3>
-                        <p>Breakdown of badge selections used</p>
-                    </div>
+        <div class="ad-banner" id="ad1">
+            <span style="color: #999; font-size: 12px;">Advertisement</span>
+        </div>
+
+        <div class="section-title">Step 2: People & Group</div>
+        <div class="card">
+            <label
+                style="font-size: 11px; font-weight:600; color: var(--text-sub); display: block; margin-bottom: 8px;">Instructor
+                Title</label>
+            <div class="chip-container" id="titleChips">
+                <button class="chip" onclick="selectChip('titleChips', this)">Mr.</button>
+                <button class="chip" onclick="selectChip('titleChips', this)">Mrs.</button>
+                <button class="chip active" onclick="selectChip('titleChips', this)">Ms.</button>
+                <button class="chip" onclick="selectChip('titleChips', this)">Miss</button>
+                <button class="chip" onclick="selectChip('titleChips', this)">Dr.</button>
+                <button class="chip" onclick="selectChip('titleChips', this)">Rev.</button>
+            </div>
+            <div class="input-group">
+                <label>Instructed By</label>
+                <input type="text" id="instName" placeholder="LECTURER'S NAME">
+            </div>
+            <div class="input-group">
+                <label>Group No</label>
+                <input type="text" id="groupNo" placeholder="C#">
+            </div>
+            <div class="input-group">
+                <label>Group Members (Reg Nos)</label>
+                <textarea id="groupMembers" rows="4" placeholder="COL/##/####/F/###..."></textarea>
+            </div>
+        </div>
+
+        <div class="ad-banner" id="ad2">
+            <span style="color: #999; font-size: 12px;">Advertisement</span>
+        </div>
+
+        <div class="section-title">Step 3: Personal & Dates</div>
+        <div class="card">
+            <div class="input-group">
+                <label>Your Name</label>
+                <input type="text" id="stuName" placeholder="YOUR NAME">
+            </div>
+            <div class="input-group">
+                <label>Registration No</label>
+                <input type="text" id="regNo" placeholder="COL/##/####/F/###">
+            </div>
+            <label
+                style="font-size: 11px; font-weight:600; color: var(--text-sub); display: block; margin-bottom: 8px;">Course</label>
+            <div class="chip-container" id="courseChips">
+                <button class="chip active" onclick="selectChip('courseChips', this)">HNDCE</button>
+                <button class="chip" onclick="selectChip('courseChips', this)">HNDQS</button>
+                <button class="chip" onclick="selectChip('courseChips', this)">HNDME</button>
+                <button class="chip" onclick="selectChip('courseChips', this)">HNDBSE</button>
+                <button class="chip" onclick="selectChip('courseChips', this)">HNDEE</button>
+            </div>
+            <label
+                style="font-size: 11px; font-weight:600; color: var(--text-sub); display: block; margin-bottom: 8px; margin-top: 15px;">Academic
+                Year</label>
+            <div class="chip-container" id="yearChips">
+                <button class="chip" onclick="selectChip('yearChips', this)">2021</button>
+                <button class="chip" onclick="selectChip('yearChips', this)">2022</button>
+                <button class="chip active" onclick="selectChip('yearChips', this)">2324</button>
+                <button class="chip" onclick="selectChip('yearChips', this)">2025</button>
+                <button class="chip" onclick="selectChip('yearChips', this)">2026</button>
+            </div>
+            <div class="row" style="margin-top: 15px;">
+                <div class="input-group">
+                    <label>Date of Instruction</label>
+                    <input type="text" id="dateInst" placeholder="/ / 2025">
                 </div>
-                <div class="chart-canvas-wrapper">
-                    <canvas id="badgesChart"></canvas>
+                <div class="input-group">
+                    <label>Date of Submission</label>
+                    <input type="text" id="dateSub" placeholder="/ / 2025">
+                </div>
+            </div>
+        </div>
+
+        <button class="btn-export" onclick="startExport()">GENERATE A4 PDF</button>
+
+        <div style="text-align: center; margin-top: 30px; padding: 20px; border-top: 1px solid #eee;">
+            <p style="font-size: 13px; color: var(--text-sub); margin-bottom: 5px;">
+                IF YOU HAVE ANY PROBLEM, PLEASE CONTACT US,
+            </p>
+            <a href="mailto:34batchcivilengineering@gmail.com"
+                style="color: var(--primary); font-size: 14px; font-weight: 700; text-decoration: none;">
+                34batchcivilengineering@gmail.com
+            </a>
+            <p style="font-size: 10px; color: #ccc; margin-top: 15px;">© 2025 CoverPages Pro - Civil Engineering 34th
+                Batch</p>
+        </div>
+
+    </div>
+    </div>
+
+    <div id="adOverlay">
+        <div class="ad-content-new">
+            <!-- touch link : Replace '#' with your destination link -->
+            <a href="#" target="_blank" id="adTouchLink" class="ad-image-container">
+                <!-- ad link : Replace src with your 1:1 Ad Image URL -->
+                <img src="https://via.placeholder.com/500x500?text=Premium+Sponsor+Ad" alt="Sponsor Ad" id="adBigImage">
+            </a>
+            <div class="ad-footer">
+                <h3 style="margin:0; font-size: 18px; color: #2d3436;">Processing Your Report</h3>
+                <p id="waitingStatus" style="font-size: 13px; color: #636e72; margin: 5px 0 10px;">Please wait, your
+                    document is almost ready...</p>
+
+                <button id="btnConfirmExport" onclick="finalExport()">OK, DOWNLOAD PDF</button>
+                <div id="timerContainer">
+                    <span class="timer-small">Ready in <span id="sec">--</span> seconds</span>
                 </div>
             </div>
         </div>
     </div>
 
+
+
     <script>
+        let selectedReportType = "Experiment";
+
+        function selectReportType(type, element) {
+            selectedReportType = type;
+            selectChip('typeChips', element);
+
+            // Update the label in UI
+            const label = document.getElementById('expNoLabel');
+            if (type === 'Assignment') {
+                label.innerText = "Assignment No";
+                document.getElementById('expNo').placeholder = "##";
+            } else {
+                label.innerText = "Experiment No";
+                document.getElementById('expNo').placeholder = "##";
+            }
+        }
+
+        function selectChip(containerId, element) {
+            document.getElementById(containerId).querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+            element.classList.add('active');
+        }
+
+
+
+        // මම මේක ඔයාගේ අලුත් Sketch එකට අනුව ලස්සනට හැදුවා
         // --- Supabase Configuration ---
         const SUPABASE_URL = "https://rmkjsttcpxtekjuozvbt.supabase.co";
         const SUPABASE_ANON_KEY = "sb_publishable_UFNshGDC-p38BEeY1ZtfHg_MdSnWa8x";
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        // Chart instances
-        let exportsChart, adsChart, badgesChart;
-        let currentCount = 14520;
+        // Global State
+        let globalExportCount = 14520;
 
-        // Odometer setup
-        function initOdometer(targetNum) {
-            const wrapper = document.getElementById('liveOdometer');
-            wrapper.innerHTML = '';
-            
-            const numStr = targetNum.toLocaleString('en-US');
-            
-            for (let char of numStr) {
-                if (char === ',') {
-                    const comma = document.createElement('span');
-                    comma.className = 'odometer-comma';
-                    comma.innerText = ',';
-                    wrapper.appendChild(comma);
-                } else {
-                    const digit = document.createElement('div');
-                    digit.className = 'odometer-digit';
-                    
-                    const reel = document.createElement('div');
-                    reel.className = 'odometer-digit-reel';
-                    
-                    // Create stack 0-9
-                    for (let i = 0; i <= 9; i++) {
-                        const span = document.createElement('span');
-                        span.innerText = i;
-                        reel.appendChild(span);
-                    }
-                    
-                    digit.appendChild(reel);
-                    wrapper.appendChild(digit);
-                }
-            }
-            updateOdometer(targetNum);
-        }
-
-        function updateOdometer(targetNum) {
-            const wrapper = document.getElementById('liveOdometer');
-            const numStr = targetNum.toLocaleString('en-US');
-            
-            // Check if count of elements matches string length (excluding commas vs digits)
-            const digitsOnly = numStr.replace(/,/g, '');
-            const reels = wrapper.querySelectorAll('.odometer-digit-reel');
-            
-            if (reels.length !== digitsOnly.length) {
-                // Re-initialize if length changed
-                initOdometer(targetNum);
-                return;
-            }
-            
-            for (let i = 0; i < reels.length; i++) {
-                const val = parseInt(digitsOnly[i]);
-                reels[i].style.transform = `translateY(-${val * 60}px)`;
-            }
-        }
-
-        // Realtime Presences & Stats
-        async function fetchLiveStats() {
+        // 1. Handle Global Export Count (Realtime)
+        async function fetchInitialStats() {
             try {
-                // Fetch exports count
                 const { data, error } = await supabaseClient
                     .from('app_stats')
                     .select('stat_value')
@@ -516,33 +484,30 @@
                     .single();
 
                 if (data) {
-                    currentCount = data.stat_value;
-                    updateOdometer(currentCount);
+                    globalExportCount = data.stat_value;
+                    document.getElementById('totalExports').innerText = globalExportCount.toLocaleString();
                 }
-            } catch (err) {
-                console.error("Error fetching stats:", err);
-            }
+            } catch (err) { console.error("Error fetching stats:", err); }
         }
 
-        // Realtime subscriptions
-        supabaseClient
+        // Subscribe to changes in total_exports
+        const statsChannel = supabaseClient
             .channel('public:app_stats')
             .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'app_stats' }, payload => {
                 if (payload.new.stat_name === 'total_exports') {
-                    currentCount = payload.new.stat_value;
-                    updateOdometer(currentCount);
-                    // Dynamically increment daily charts if visible
-                    incrementRealtimeChart();
+                    globalExportCount = payload.new.stat_value;
+                    document.getElementById('totalExports').innerText = globalExportCount.toLocaleString();
                 }
             })
             .subscribe();
 
+        // 2. Handle Live Users (Presence)
         const presenceChannel = supabaseClient.channel('online-users');
         presenceChannel
             .on('presence', { event: 'sync' }, () => {
                 const state = presenceChannel.presenceState();
                 const count = Object.keys(state).length;
-                document.getElementById('cardLiveUsers').innerText = count;
+                document.getElementById('liveUsers').innerText = count;
             })
             .subscribe(async (status) => {
                 if (status === 'SUBSCRIBED') {
@@ -550,235 +515,250 @@
                 }
             });
 
-        // Generate daily label list
-        const getLast7Days = () => {
-            const labels = [];
-            for (let i = 6; i >= 0; i--) {
-                const d = new Date();
-                d.setDate(d.getDate() - i);
-                labels.push(d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }));
-            }
-            return labels;
-        };
+        fetchInitialStats();
 
-        // Live charts updates
-        function incrementRealtimeChart() {
-            if (exportsChart) {
-                const len = exportsChart.data.datasets[0].data.length;
-                exportsChart.data.datasets[0].data[len - 1] += 1;
-                exportsChart.update();
-            }
-            // Increment today's count in card
-            const todayElem = document.getElementById('cardTodayExports');
-            if (todayElem) {
-                const currentToday = parseInt(todayElem.innerText.replace(/,/g, '')) || 0;
-                todayElem.innerText = (currentToday + 1).toLocaleString();
-            }
-        }
+        // Ad Image URLs (Using a more reliable direct link format)
+        const ad1_url = "https://lh3.googleusercontent.com/d/1QRH__Tnbukke33mWOdtME6jO00MpLxwf";
+        const ad2_url = "https://lh3.googleusercontent.com/d/1ejk61zKZhdmjbE6kcMnUiChqkeTDgYt1";
 
-        // Load DB analytics (no mock data fallback, defaults to zeros if empty)
-        async function loadSupabaseAnalytics() {
+        async function logAdEvent(type, adId) {
             try {
-                // Fetch actual export stats
-                const { data: exportLogs, error: err1 } = await supabaseClient
-                    .from('export_logs')
-                    .select('course, academic_year, created_at');
-                
-                const { data: adLogs, error: err2 } = await supabaseClient
-                    .from('ad_logs')
-                    .select('event_type, created_at');
-
-                processAndDisplayData(exportLogs || [], adLogs || []);
-            } catch (e) {
-                console.warn("Analytics querying error, defaulting to zero datasets:", e);
-                processAndDisplayData([], []);
+                await supabaseClient.from('ad_logs').insert([{
+                    event_type: type,
+                    ad_id: adId,
+                    created_at: new Date().toISOString()
+                }]);
+            } catch (err) {
+                console.warn("Ad log failed:", err);
             }
         }
 
-        function processAndDisplayData(exportLogs, adLogs) {
-            const days = getLast7Days();
-            const dailyExpCounts = Array(7).fill(0);
-            const dailyViewsCounts = Array(7).fill(0);
-            const dailyClicksCounts = Array(7).fill(0);
+        function updateAds() {
+            if (ad1_url) {
+                document.getElementById('ad1').innerHTML = `<a href="https://hndehelper.github.io/coverpages/" target="_blank" onclick="logAdEvent('click', 'ad1')"><img src="${ad1_url}" alt="Ad 1"></a>`;
+                logAdEvent('view', 'ad1');
+            }
+            if (ad2_url) {
+                document.getElementById('ad2').innerHTML = `<a href="https://hndehelper.github.io/coverpages/" target="_blank" onclick="logAdEvent('click', 'ad2')"><img src="${ad2_url}" alt="Ad 2"></a>`;
+                logAdEvent('view', 'ad2');
+            }
+        }
+        updateAds();
 
-            const today = new Date();
-            const dateMap = {};
-            for (let i = 0; i < 7; i++) {
-                const d = new Date();
-                d.setDate(today.getDate() - i);
-                const key = d.toISOString().split('T')[0];
-                dateMap[key] = 6 - i; // map date string to index in array (0 to 6)
+        function startExport() {
+            const overlay = document.getElementById('adOverlay');
+            const secSpan = document.getElementById('sec');
+            const btnConfirm = document.getElementById('btnConfirmExport');
+            const timerContainer = document.getElementById('timerContainer');
+            const statusText = document.getElementById('waitingStatus');
+
+            // --- CONFIGURATION ---
+            // ad link : Update this URL for the 1:1 Image
+            document.getElementById('adBigImage').src = "https://lh3.googleusercontent.com/d/1WGbqIuPQ25081NxlVWXsHHfDGigHVRMF";
+            // touch link : Update this for the redirection
+            document.getElementById('adTouchLink').href = "https://www.facebook.com/marketplace/item/997431929633459/?mibextid=dXMIcH";
+            document.getElementById('adTouchLink').onclick = function () {
+                logAdEvent('click', 'big_ad');
+            };
+            logAdEvent('view', 'big_ad');
+
+            // Random waiting time between 15 and 25 seconds
+            let timeLeft = Math.floor(Math.random() * (25 - 15 + 1)) + 15;
+
+            overlay.style.display = 'flex';
+            btnConfirm.style.display = 'none';
+            timerContainer.style.display = 'block';
+            statusText.innerText = "Please wait, your document is almost ready...";
+            secSpan.innerText = timeLeft;
+
+            const countdown = setInterval(() => {
+                timeLeft--;
+                secSpan.innerText = timeLeft;
+                if (timeLeft <= 0) {
+                    clearInterval(countdown);
+                    timerContainer.style.display = 'none';
+                    btnConfirm.style.display = 'block';
+                    statusText.innerText = "Preparation Complete!";
+                }
+            }, 1000);
+        }
+
+        function finalExport() {
+            document.getElementById('adOverlay').style.display = 'none';
+            generatePDF();
+        }
+
+        async function generatePDF() {
+            // Increment Global Export Count in Supabase
+            try {
+                await supabaseClient.rpc('increment_exports');
+                // Note: increment_exports is a SQL function you need to create in Supabase
+            } catch (err) {
+                console.error("Database update failed:", err);
+                // Fallback for local experience
+                globalExportCount++;
+                document.getElementById('totalExports').innerText = globalExportCount.toLocaleString();
             }
 
-            // Populate exports and calculate today's count
-            const todayStr = today.toISOString().split('T')[0];
-            let todayCount = 0;
+            // Log export details to Supabase for analysis (safely caught)
+            try {
+                const activeYear = document.querySelector('#yearChips .active') ? document.querySelector('#yearChips .active').innerText : '2324';
+                const activeCourse = document.querySelector('#courseChips .active') ? document.querySelector('#courseChips .active').innerText : '';
+                await supabaseClient.from('export_logs').insert([{
+                    report_type: selectedReportType,
+                    exp_no: document.getElementById('expNo').value || "##",
+                    module_code: (document.getElementById('modCode').value || "SUBJECT CODE").toUpperCase(),
+                    subject_name: (document.getElementById('subName').value || "SUBJECT NAME").toUpperCase(),
+                    practical_name: (document.getElementById('pracName').value || "PRACTICAL NAME").toUpperCase(),
+                    instructor_name: `${document.querySelector('#titleChips .active').innerText.toUpperCase()} ${(document.getElementById('instName').value || "LECTURERS NAME").toUpperCase()}`,
+                    group_no: (document.getElementById('groupNo').value || "C2").toUpperCase(),
+                    student_name: (document.getElementById('stuName').value || "YOUR NAME").toUpperCase(),
+                    reg_no: (document.getElementById('regNo').value || "COL/##/####/F/###").toUpperCase(),
+                    course: activeCourse,
+                    academic_year: activeYear,
+                    date_instruction: document.getElementById('dateInst').value || "##/##/202#",
+                    date_submission: document.getElementById('dateSub').value || "##/##/202#"
+                }]);
+            } catch (err) {
+                console.warn("Analytics insert failed:", err);
+            }
 
-            exportLogs.forEach(log => {
-                if (log.created_at) {
-                    const dateStr = log.created_at.split('T')[0];
-                    if (dateMap[dateStr] !== undefined) {
-                        dailyExpCounts[dateMap[dateStr]]++;
-                    }
-                    if (dateStr === todayStr) {
-                        todayCount++;
-                    }
-                }
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+
+
+
+
+            const data = {
+                reportType: selectedReportType,
+                expNo: document.getElementById('expNo').value || "##",
+                modCode: (document.getElementById('modCode').value || "SUBJECT CODE").toUpperCase(),
+                subName: (document.getElementById('subName').value || "SUBJECT NAME").toUpperCase(),
+                pracName: (document.getElementById('pracName').value || "PRACTICAL NAME").toUpperCase(),
+                instTitle: document.querySelector('#titleChips .active').innerText.toUpperCase(),
+                instName: (document.getElementById('instName').value || "LECTURERS NAME").toUpperCase(),
+                groupNo: (document.getElementById('groupNo').value || "C2").toUpperCase(),
+                groupMembers: document.getElementById('groupMembers').value,
+                stuName: (document.getElementById('stuName').value || "YOUR NAME").toUpperCase(),
+                regNo: (document.getElementById('regNo').value || "COL/##/####/F/###").toUpperCase(),
+                course: document.querySelector('#courseChips .active').innerText,
+                academicYear: document.querySelector('#yearChips .active') ? document.querySelector('#yearChips .active').innerText : '2324',
+                dateInst: document.getElementById('dateInst').value || "##/##/202#",
+                dateSub: document.getElementById('dateSub').value || "##/##/202#"
+            };
+
+            const PAGE_W = 210;
+            const PAGE_H = 297;
+            const ML = 25; // Sketch එකේ තියෙන Binding Margin
+            const MR = 10;  // Sketch එකේ තියෙන Right Margin
+            const MT = 10;  // Sketch එකේ තියෙන Top Margin
+            const MB = 10;  // Sketch එකේ තියෙන Bottom Margin
+            const INNER_W = PAGE_W - ML - MR;
+            const INNER_H = PAGE_H - MT - MB;
+
+            // Border එක ගැහීම
+            doc.setLineWidth(0.3);
+            doc.rect(ML, MT, INNER_W, INNER_H);
+
+            // 1. Top Right Box (Size 20)
+            doc.setFont("times");
+            doc.setFontSize(20);
+            const boxWidth = 80;
+            const boxX = PAGE_W - MR - boxWidth - 5;
+            let currentY = MT + 10;
+
+            const labelType = data.reportType === 'Assignment' ? 'ASSIGNMENT' : 'EXPERIMENT';
+            doc.text(`${labelType} NO: ${data.expNo}`, boxX, currentY);
+
+            doc.setFontSize(20); // අනිත් විස්තර ටික චුට්ටක් කුඩා කළා Box එකට ගැලපෙන්න
+            currentY += 10;
+            const subLines = doc.splitTextToSize(data.subName, boxWidth);
+            doc.text(subLines, boxX, currentY);
+
+            currentY += (subLines.length * 8);
+            doc.text(data.modCode, boxX, currentY);
+
+            // 2. Dynamic Topic Positioning (මතමයි වෙනස්කම තියෙන්නේ)
+            doc.setFontSize(30);
+            const centerX = ML + (INNER_W / 2);
+            const splitPrac = doc.splitTextToSize(data.pracName, INNER_W - 10);
+            const lineHeight = 12;
+            const totalTopicHeight = splitPrac.length * lineHeight;
+
+            // අපි හිතමු Topic එක අවසන් විය යුතු ස්ථාවර තැන (Baseline) 150mm කියලා
+            // එතකොට Topic එක පේළි වැඩි වෙන්න වැඩි වෙන්න උඩට තමයි move වෙන්නේ
+            let pracY = 150 - totalTopicHeight + lineHeight;
+
+            splitPrac.forEach(line => {
+                doc.text(line, centerX, pracY, { align: 'center' });
+                const tw = doc.getTextWidth(line);
+                doc.line(centerX - (tw / 2), pracY + 2, centerX + (tw / 2), pracY + 2);
+                pracY += lineHeight;
             });
 
-            // Set today's count
-            document.getElementById('cardTodayExports').innerText = todayCount.toLocaleString();
+            // 3. Instruction & Group (Size 11, Aligned to Topic Start)
+            if (data.reportType === 'Experiment') {
+                doc.setFont("times", "normal");
+                doc.setFontSize(11);
+                const infoX = ML + 15;
+                let infoY = 160;
+                const COLON_DIST = 34;
 
-            // Populate Ads
-            let totalViews = 0;
-            let totalClicks = 0;
-            if (adLogs) {
-                adLogs.forEach(log => {
-                    if (log.created_at) {
-                        const dateStr = log.created_at.split('T')[0];
-                        const idx = dateMap[dateStr];
-                        if (log.event_type === 'view') {
-                            totalViews++;
-                            if (idx !== undefined) dailyViewsCounts[idx]++;
-                        } else if (log.event_type === 'click') {
-                            totalClicks++;
-                            if (idx !== undefined) dailyClicksCounts[idx]++;
-                        }
-                    }
+                const printLine = (label, value) => {
+                    doc.text(label, infoX, infoY);
+                    doc.text(":", infoX + COLON_DIST, infoY);
+                    doc.text(value, infoX + COLON_DIST + 5, infoY);
+                    infoY += 4;
+                };
+
+                printLine("INSTRUCTED BY", `${data.instTitle} ${data.instName}`);
+                printLine("GROUP", data.groupNo);
+
+                doc.text("GROUP MEMBERS", infoX, infoY);
+                doc.text(":", infoX + COLON_DIST, infoY);
+                const members = data.groupMembers.split(/[\n,]+/).map(m => m.trim()).filter(m => m);
+                let memberY = infoY;
+                members.forEach(m => {
+                    doc.text(m, infoX + COLON_DIST + 5, memberY);
+                    memberY += 4;
                 });
             }
 
-            // Set text elements
-            document.getElementById('cardAdViews').innerText = totalViews.toLocaleString();
-            document.getElementById('cardAdClicks').innerText = totalClicks.toLocaleString();
+            // 4. Bottom Right Details (Dynamically shifts left if name is long)
+            doc.setFontSize(11);
+            const BR_COLON = 30;
+            const personalInfo = [
+                ["NAME", data.stuName],
+                ["REG NO", data.regNo],
+                ["COURSE", data.course],
+                ["DATE OF INS", data.dateInst],
+                ["DATE OF SUB", data.dateSub]
+            ];
 
-            // Aggregate course/year badges
-            const badgeCounters = {};
-            exportLogs.forEach(log => {
-                const badgeLabel = `${log.academic_year || '2324'} ${log.course || 'HNDCE'}`;
-                badgeCounters[badgeLabel] = (badgeCounters[badgeLabel] || 0) + 1;
+            // Calculate max width of the values to avoid border overlap
+            let maxValueWidth = 0;
+            personalInfo.forEach(item => {
+                const w = doc.getTextWidth(item[1]);
+                if (w > maxValueWidth) maxValueWidth = w;
             });
 
-            // Sort and take top 6 badge types
-            const sortedBadges = Object.keys(badgeCounters)
-                .map(key => ({ label: key, value: badgeCounters[key] }))
-                .sort((a, b) => b.value - a.value)
-                .slice(0, 6);
+            // Adjust starting X (brX) so the longest value stays within the border
+            // Value starts at brX + BR_COLON + 3. Max border point is PAGE_W - MR - 5
+            let brX = (PAGE_W - MR - 5) - (BR_COLON + 3) - maxValueWidth;
+            if (brX < 105) brX = 105; // Safety limit to avoid overlapping left content
 
-            const badgeLabels = sortedBadges.map(item => item.label);
-            const badgeData = sortedBadges.map(item => item.value);
-
-            // Render Chart.js with actual aggregated data
-            // 1. Exports
-            const ctxExports = document.getElementById('exportsChart').getContext('2d');
-            exportsChart = new Chart(ctxExports, {
-                type: 'line',
-                data: {
-                    labels: days,
-                    datasets: [{
-                        label: 'Generated Reports',
-                        data: dailyExpCounts,
-                        borderColor: '#00f2fe',
-                        backgroundColor: 'rgba(0, 242, 254, 0.1)',
-                        borderWidth: 3,
-                        fill: true,
-                        tension: 0.4,
-                        pointBackgroundColor: '#00f2fe',
-                        pointBorderColor: '#ffffff'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: {
-                        y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#a0aec0' } },
-                        x: { grid: { display: false }, ticks: { color: '#a0aec0' } }
-                    }
-                }
+            let brY = PAGE_H - MB - 20;
+            personalInfo.forEach(item => {
+                doc.text(item[0], brX, brY);
+                doc.text(":", brX + BR_COLON, brY);
+                doc.text(item[1], brX + BR_COLON + 3, brY);
+                brY += 4;
             });
 
-            // 2. Ads
-            const ctxAds = document.getElementById('adsChart').getContext('2d');
-            adsChart = new Chart(ctxAds, {
-                type: 'line',
-                data: {
-                    labels: days,
-                    datasets: [
-                        { label: 'Ad Views', data: dailyViewsCounts, borderColor: '#a29bfe', backgroundColor: 'transparent', borderWidth: 2, tension: 0.3 },
-                        { label: 'Ad Clicks', data: dailyClicksCounts, borderColor: '#ff007f', backgroundColor: 'transparent', borderWidth: 2, tension: 0.3 }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { labels: { color: '#a0aec0' } } },
-                    scales: {
-                        y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#a0aec0' } },
-                        x: { grid: { display: false }, ticks: { color: '#a0aec0' } }
-                    }
-                }
-            });
-
-            // 3. Badges
-            const ctxBadges = document.getElementById('badgesChart').getContext('2d');
-            badgesChart = new Chart(ctxBadges, {
-                type: 'bar',
-                data: {
-                    labels: badgeLabels.length > 0 ? badgeLabels : ['No Data'],
-                    datasets: [{
-                        label: 'Exports count',
-                        data: badgeData.length > 0 ? badgeData : [0],
-                        backgroundColor: ['#00f2fe', '#8e44ad', '#ff007f', '#8257e5', '#a29bfe', '#f1c40f'],
-                        borderRadius: 8
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: {
-                        y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#a0aec0' } },
-                        x: { grid: { display: false }, ticks: { color: '#a0aec0' } }
-                    }
-                }
-            });
+            doc.save(`Lab_Report_${data.expNo}.pdf`);
         }
 
-        function checkAdminPassword() {
-            const pwd = document.getElementById('adminPassword').value;
-            if (pwd === '2004200301051709') {
-                sessionStorage.setItem('admin_authenticated', 'true');
-                document.getElementById('loginOverlay').style.display = 'none';
-                initPageData();
-            } else {
-                const err = document.getElementById('loginError');
-                err.style.display = 'block';
-                const input = document.getElementById('adminPassword');
-                input.style.borderColor = '#ff007f';
-                input.value = '';
-            }
-        }
 
-        function initPageData() {
-            initOdometer(currentCount);
-            fetchLiveStats().then(() => {
-                loadSupabaseAnalytics();
-            });
-            // Refresh stats counter every 15 seconds
-            setInterval(fetchLiveStats, 15000);
-        }
-
-        // Check session status on DOM ready
-        window.addEventListener('DOMContentLoaded', () => {
-            if (sessionStorage.getItem('admin_authenticated') === 'true') {
-                document.getElementById('loginOverlay').style.display = 'none';
-                initPageData();
-            } else {
-                document.getElementById('loginOverlay').style.display = 'flex';
-                document.getElementById('adminPassword').focus();
-            }
-        });
     </script>
 </body>
 
