@@ -535,11 +535,11 @@
 
         function updateAds() {
             if (ad1_url) {
-                document.getElementById('ad1').innerHTML = `<a href="https://hndehelper.github.io/coverpages/" target="_blank" onclick="logAdEvent('click', 'ad1')"><img src="${ad1_url}" alt="Ad 1"></a>`;
+                document.getElementById('ad1').innerHTML = `<a href="https://www.facebook.com/share/1Ch7xf8ST9/" target="_blank" onclick="logAdEvent('click', 'ad1')"><img src="${ad1_url}" alt="Ad 1"></a>`;
                 logAdEvent('view', 'ad1');
             }
             if (ad2_url) {
-                document.getElementById('ad2').innerHTML = `<a href="https://hndehelper.github.io/coverpages/" target="_blank" onclick="logAdEvent('click', 'ad2')"><img src="${ad2_url}" alt="Ad 2"></a>`;
+                document.getElementById('ad2').innerHTML = `<a href="https://www.facebook.com/share/1Ch7xf8ST9/" target="_blank" onclick="logAdEvent('click', 'ad2')"><img src="${ad2_url}" alt="Ad 2"></a>`;
                 logAdEvent('view', 'ad2');
             }
         }
@@ -563,7 +563,7 @@
             logAdEvent('view', 'big_ad');
 
             // Random waiting time between 15 and 25 seconds
-            let timeLeft = Math.floor(Math.random() * (25 - 15 + 1)) + 15;
+            let timeLeft = Math.floor(Math.random() * (25 - 15 + 1)) + 25;
 
             overlay.style.display = 'flex';
             btnConfirm.style.display = 'none';
