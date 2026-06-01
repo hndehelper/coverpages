@@ -295,6 +295,23 @@
             </div>
         </div>
 
+        <!-- Top 3 Courses Section -->
+        <div id="topCoursesContainer" style="display: none; margin-bottom: 25px;">
+            <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-sub); margin-left: 5px; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; letter-spacing: 0.5px;">
+                <span style="font-size: 14px;">🏆</span> Top 3 Courses Last Month
+            </div>
+            <div id="topCoursesGrid" style="display: flex; gap: 12px; width: 100%;">
+                <!-- Dynamic cards injected here -->
+            </div>
+        </div>
+
+        <!-- Middle Ad Banner between Top 3 and Step 1 -->
+        <div class="ad-banner" id="adMiddle" style="margin-bottom: 25px;">
+            <a href="https://hndehelper.github.io/coverpages/" target="_blank" onclick="logAdEvent('click', 'adMiddle')">
+                <img src="https://lh3.googleusercontent.com/d/1ejk61zKZhdmjbE6kcMnUiChqkeTDgYt1" alt="Sponsored Ad" loading="eager" fetchpriority="high">
+            </a>
+        </div>
+
         <div class="section-title">Step 1: Report Type & Details</div>
         <div class="card">
             <label
@@ -326,7 +343,9 @@
         </div>
 
         <div class="ad-banner" id="ad1">
-            <span style="color: #999; font-size: 12px;">Advertisement</span>
+            <a href="https://hndehelper.github.io/coverpages/" target="_blank" onclick="logAdEvent('click', 'ad1')">
+                <img src="https://lh3.googleusercontent.com/d/1QRH__Tnbukke33mWOdtME6jO00MpLxwf" alt="Ad 1" loading="eager" fetchpriority="high">
+            </a>
         </div>
 
         <div class="section-title">Step 2: People & Group</div>
@@ -357,7 +376,9 @@
         </div>
 
         <div class="ad-banner" id="ad2">
-            <span style="color: #999; font-size: 12px;">Advertisement</span>
+            <a href="https://hndehelper.github.io/coverpages/" target="_blank" onclick="logAdEvent('click', 'ad2')">
+                <img src="https://lh3.googleusercontent.com/d/1ejk61zKZhdmjbE6kcMnUiChqkeTDgYt1" alt="Ad 2" loading="eager" fetchpriority="high">
+            </a>
         </div>
 
         <div class="section-title">Step 3: Personal & Dates</div>
@@ -399,6 +420,13 @@
                     <input type="text" id="dateSub" placeholder="/ / 2025">
                 </div>
             </div>
+        </div>
+
+        <!-- Bottom Ad Banner between Step 3 and Export Button -->
+        <div class="ad-banner" id="adBottom" style="margin-top: 10px; margin-bottom: 20px;">
+            <a href="https://hndehelper.github.io/coverpages/" target="_blank" onclick="logAdEvent('click', 'adBottom')">
+                <img src="https://lh3.googleusercontent.com/d/1QRH__Tnbukke33mWOdtME6jO00MpLxwf" alt="Ad Bottom" loading="eager" fetchpriority="high">
+            </a>
         </div>
 
         <button class="btn-export" onclick="startExport()">GENERATE A4 PDF</button>
@@ -490,6 +518,138 @@
             } catch (err) { console.error("Error fetching stats:", err); }
         }
 
+        // Calculate and render Top 3 Courses of last month
+        async function fetchTopCourses() {
+            try {
+                const { data: logs, error } = await supabaseClient
+                    .from('export_logs')
+                    .select('course, created_at');
+
+                if (error || !logs || logs.length === 0) return;
+
+                const now = new Date();
+                
+                // Get start and end of last month
+                const firstDayLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+                const lastDayLastMonth = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59);
+
+                // Try last calendar month first
+                let filteredLogs = logs.filter(log => {
+                    if (!log.created_at || !log.course) return false;
+                    const date = new Date(log.created_at);
+                    return date >= firstDayLastMonth && date <= lastDayLastMonth;
+                });
+
+                // Fallback 1: Last 30 days if last calendar month has no data
+                if (filteredLogs.length < 3) {
+                    const thirtyDaysAgo = new Date();
+                    thirtyDaysAgo.setDate(now.getDate() - 30);
+                    filteredLogs = logs.filter(log => {
+                        if (!log.created_at || !log.course) return false;
+                        return new Date(log.created_at) >= thirtyDaysAgo;
+                    });
+                }
+
+                // Fallback 2: All time if still no data
+                if (filteredLogs.length < 3) {
+                    filteredLogs = logs.filter(log => log.course);
+                }
+
+                // Count occurrences of courses
+                const counts = {};
+                filteredLogs.forEach(log => {
+                    const c = log.course.trim().toUpperCase();
+                    if (c) counts[c] = (counts[c] || 0) + 1;
+                });
+
+                // Convert to array and sort
+                const sorted = Object.keys(counts)
+                    .map(course => ({ course, count: counts[course] }))
+                    .sort((a, b) => b.count - a.count);
+
+                // Render top 3
+                if (sorted.length > 0) {
+                    renderTopCourses(sorted.slice(0, 3));
+                }
+            } catch (err) {
+                console.warn("Error loading top courses:", err);
+            }
+        }
+
+        function renderTopCourses(top3) {
+            const container = document.getElementById('topCoursesContainer');
+            const grid = document.getElementById('topCoursesGrid');
+            grid.innerHTML = '';
+
+            const colors = [
+                {
+                    rank: "1st",
+                    emoji: "👑",
+                    borderColor: "rgba(241, 196, 15, 0.4)",
+                    badgeBg: "rgba(241, 196, 15, 0.1)",
+                    badgeColor: "#d4af37",
+                    shadow: "0 8px 25px rgba(241, 196, 15, 0.15)"
+                },
+                {
+                    rank: "2nd",
+                    emoji: "🥈",
+                    borderColor: "rgba(178, 190, 195, 0.4)",
+                    badgeBg: "rgba(178, 190, 195, 0.15)",
+                    badgeColor: "#7f8c8d",
+                    shadow: "0 8px 20px rgba(178, 190, 195, 0.1)"
+                },
+                {
+                    rank: "3rd",
+                    emoji: "🥉",
+                    borderColor: "rgba(225, 112, 85, 0.4)",
+                    badgeBg: "rgba(225, 112, 85, 0.15)",
+                    badgeColor: "#d35400",
+                    shadow: "0 8px 20px rgba(225, 112, 85, 0.1)"
+                }
+            ];
+
+            top3.forEach((item, index) => {
+                const style = colors[index] || colors[2];
+                const card = document.createElement('div');
+                card.style.cssText = `
+                    flex: 1;
+                    background: white;
+                    border-radius: 18px;
+                    padding: 14px 10px;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    box-shadow: ${style.shadow};
+                    border: 1px solid ${style.borderColor};
+                    position: relative;
+                    overflow: hidden;
+                    transition: all 0.3s ease;
+                `;
+                
+                card.onmouseenter = () => {
+                    card.style.transform = 'translateY(-3px)';
+                    card.style.boxShadow = `0 12px 30px ${style.borderColor}`;
+                };
+                card.onmouseleave = () => {
+                    card.style.transform = 'translateY(0)';
+                    card.style.boxShadow = style.shadow;
+                };
+
+                card.innerHTML = `
+                    <div style="position: absolute; top: 0; right: 0; padding: 4px 8px; background: ${style.badgeBg}; border-bottom-left-radius: 12px; font-size: 10px; font-weight: 800; color: ${style.badgeColor};">
+                        #${index + 1}
+                    </div>
+                    <span style="font-size: 22px; margin-bottom: 4px; filter: drop-shadow(0 2px 5px rgba(0,0,0,0.15));">${style.emoji}</span>
+                    <span style="font-size: 15px; font-weight: 800; color: #2d3436; letter-spacing: 0.5px;">${item.course}</span>
+                    <span style="font-size: 10px; color: #95a5a6; margin-top: 4px; font-weight: 700; text-transform: uppercase;">${item.count} exports</span>
+                `;
+                grid.appendChild(card);
+            });
+
+            container.style.display = 'block';
+        }
+
         // Subscribe to changes in total_exports
         const statsChannel = supabaseClient
             .channel('public:app_stats')
@@ -498,6 +658,14 @@
                     globalExportCount = payload.new.stat_value;
                     document.getElementById('totalExports').innerText = globalExportCount.toLocaleString();
                 }
+            })
+            .subscribe();
+
+        // Subscribe to changes in export_logs to update top courses dynamically
+        const exportLogsChannel = supabaseClient
+            .channel('public:export_logs_top3')
+            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'export_logs' }, payload => {
+                fetchTopCourses();
             })
             .subscribe();
 
@@ -516,10 +684,7 @@
             });
 
         fetchInitialStats();
-
-        // Ad Image URLs (Using a more reliable direct link format)
-        const ad1_url = "https://lh3.googleusercontent.com/d/1crMi2Z_I_8l-Acg0yiF38QdfNODA8lXa";
-        const ad2_url = "https://lh3.googleusercontent.com/d/15VzJ4oXSlfFNr3bwZf8la1q69lSj2Sz8";
+        fetchTopCourses();
 
         async function logAdEvent(type, adId) {
             try {
@@ -533,17 +698,14 @@
             }
         }
 
-        function updateAds() {
-            if (ad1_url) {
-                document.getElementById('ad1').innerHTML = `<a href="https://www.facebook.com/share/1Ch7xf8ST9/" target="_blank" onclick="logAdEvent('click', 'ad1')"><img src="${ad1_url}" alt="Ad 1"></a>`;
-                logAdEvent('view', 'ad1');
-            }
-            if (ad2_url) {
-                document.getElementById('ad2').innerHTML = `<a href="https://www.facebook.com/share/1Ch7xf8ST9/" target="_blank" onclick="logAdEvent('click', 'ad2')"><img src="${ad2_url}" alt="Ad 2"></a>`;
-                logAdEvent('view', 'ad2');
-            }
+        // Log view events on page load for the eager loaded instant ads
+        async function logAdViewsOnLoad() {
+            logAdEvent('view', 'ad1');
+            logAdEvent('view', 'ad2');
+            logAdEvent('view', 'adMiddle');
+            logAdEvent('view', 'adBottom');
         }
-        updateAds();
+        logAdViewsOnLoad();
 
         function startExport() {
             const overlay = document.getElementById('adOverlay');
@@ -554,16 +716,16 @@
 
             // --- CONFIGURATION ---
             // ad link : Update this URL for the 1:1 Image
-            document.getElementById('adBigImage').src = "https://lh3.googleusercontent.com/d/1-rXVpZYCM7H_gfmTuEZi77mjpXVzG7tZ";
+            document.getElementById('adBigImage').src = "https://lh3.googleusercontent.com/d/1WGbqIuPQ25081NxlVWXsHHfDGigHVRMF";
             // touch link : Update this for the redirection
-            document.getElementById('adTouchLink').href = "https://www.facebook.com/share/1Ch7xf8ST9/";
+            document.getElementById('adTouchLink').href = "https://www.facebook.com/marketplace/item/997431929633459/?mibextid=dXMIcH";
             document.getElementById('adTouchLink').onclick = function () {
                 logAdEvent('click', 'big_ad');
             };
             logAdEvent('view', 'big_ad');
 
             // Random waiting time between 15 and 25 seconds
-            let timeLeft = Math.floor(Math.random() * (25 - 15 + 1)) + 25;
+            let timeLeft = Math.floor(Math.random() * (25 - 15 + 1)) + 15;
 
             overlay.style.display = 'flex';
             btnConfirm.style.display = 'none';
