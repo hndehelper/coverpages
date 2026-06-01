@@ -761,8 +761,13 @@
                 const container = document.getElementById(id);
                 const config = AD_CONFIG[id];
                 if (container && config) {
+                    // Safe protocol check (adds https:// if missing, ignores mailto:)
+                    let formattedLink = config.link || '';
+                    if (formattedLink && !/^https?:\/\//i.test(formattedLink) && !/^mailto:/i.test(formattedLink)) {
+                        formattedLink = 'https://' + formattedLink;
+                    }
                     container.innerHTML = `
-                        <a href="${config.link}" target="_blank" onclick="logAdEvent('click', '${id}')">
+                        <a href="${formattedLink}" target="_blank" onclick="logAdEvent('click', '${id}')">
                             <img src="${config.img}" alt="${id}" loading="eager" fetchpriority="high" onload="this.classList.add('loaded'); this.closest('.ad-banner').style.animation='none';">
                         </a>
                     `;
@@ -788,7 +793,12 @@
 
             // --- CONFIGURATION ---
             document.getElementById('adBigImage').src = AD_CONFIG.big_ad.img;
-            document.getElementById('adTouchLink').href = AD_CONFIG.big_ad.link;
+            
+            let formattedBigAdLink = AD_CONFIG.big_ad.link || '';
+            if (formattedBigAdLink && !/^https?:\/\//i.test(formattedBigAdLink) && !/^mailto:/i.test(formattedBigAdLink)) {
+                formattedBigAdLink = 'https://' + formattedBigAdLink;
+            }
+            document.getElementById('adTouchLink').href = formattedBigAdLink;
             document.getElementById('adTouchLink').onclick = function () {
                 logAdEvent('click', 'big_ad');
             };
