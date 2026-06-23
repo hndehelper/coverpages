@@ -775,10 +775,11 @@
             });
 
             // 3. Log view events on page load
-            logAdEvent('view', 'adMiddle');
-            logAdEvent('view', 'ad1');
-            logAdEvent('view', 'ad2');
-            logAdEvent('view', 'adBottom');
+            // To save Supabase database space, we are no longer logging views!
+            // logAdEvent('view', 'adMiddle');
+            // logAdEvent('view', 'ad1');
+            // logAdEvent('view', 'ad2');
+            // logAdEvent('view', 'adBottom');
         }
 
         // Execute immediately
@@ -802,7 +803,7 @@
             document.getElementById('adTouchLink').onclick = function () {
                 logAdEvent('click', 'big_ad');
             };
-            logAdEvent('view', 'big_ad');
+            // logAdEvent('view', 'big_ad'); // Commented out to save space
 
             // Random waiting time between 15 and 25 seconds
             let timeLeft = Math.floor(Math.random() * (25 - 15 + 1)) + 15;
