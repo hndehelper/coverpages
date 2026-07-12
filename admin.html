@@ -761,11 +761,15 @@
                 // Fetch actual export stats with all required fields for our detailed logs table
                 const { data: exportLogs, error: err1 } = await supabaseClient
                     .from('export_logs')
-                    .select('created_at, student_name, course, academic_year, report_type, exp_no, subject_name, practical_name, reg_no');
+                    .select('created_at, student_name, course, academic_year, report_type, exp_no, subject_name, practical_name, reg_no')
+                    .order('created_at', { ascending: false })
+                    .limit(20000); // Increased limit to fetch more recent logs for charts
                 
                 const { data: adLogs, error: err2 } = await supabaseClient
                     .from('ad_logs')
-                    .select('event_type, created_at');
+                    .select('event_type, created_at')
+                    .order('created_at', { ascending: false })
+                    .limit(20000);
 
                 cachedExportLogs = exportLogs || [];
                 cachedAdLogs = adLogs || [];
