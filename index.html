@@ -15,85 +15,93 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
-            --primary: #6c5ce7;
-            --primary-light: #a29bfe;
-            --bg: #f8f9fd;
-            --text-main: #2d3436;
-            --text-sub: #636e72;
-            --card-bg: #ffffff;
-            --input-bg: #f0f3f9;
+            --primary: #007AFF; /* iOS Blue */
+            --primary-light: #5AC8FA;
+            --bg: #F2F2F7; /* iOS grouped background light */
+            --text-main: #000000;
+            --text-sub: #3C3C43; /* iOS secondary text */
+            --card-bg: #FFFFFF;
+            --input-bg: #F2F2F7;
+            --divider: rgba(60, 60, 67, 0.18);
         }
 
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Inter", sans-serif;
             background: var(--bg);
             margin: 0;
             color: var(--text-main);
             padding-bottom: 50px;
+            -webkit-font-smoothing: antialiased;
         }
 
         .app-header {
-            background: linear-gradient(135deg, var(--primary), #8e44ad);
-            color: white;
-            padding: 25px 20px;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: saturate(180%) blur(20px);
+            -webkit-backdrop-filter: saturate(180%) blur(20px);
+            color: var(--text-main);
+            padding: 20px 20px 15px;
             text-align: center;
-            border-bottom-left-radius: 30px;
-            border-bottom-right-radius: 30px;
-            box-shadow: 0 4px 15px rgba(108, 92, 231, 0.3);
+            border-bottom: 0.5px solid var(--divider);
             margin-bottom: 20px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
         }
 
         .container {
             max-width: 500px;
             margin: 0 auto;
-            padding: 0 15px;
+            padding: 0 16px;
         }
 
         .section-title {
-            font-size: 16px;
-            font-weight: 700;
-            margin: 25px 0 10px 5px;
-            color: var(--text-main);
+            font-size: 13px;
+            text-transform: uppercase;
+            font-weight: 500;
+            margin: 24px 0 8px 16px;
+            color: var(--text-sub);
+            letter-spacing: -0.08px;
         }
 
         .card {
             background: var(--card-bg);
-            padding: 20px;
-            border-radius: 20px;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.05);
+            padding: 16px;
+            border-radius: 14px;
             margin-bottom: 20px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05); /* very subtle shadow */
         }
 
         .input-group {
-            margin-bottom: 15px;
+            margin-bottom: 12px;
         }
 
         .input-group label {
             display: block;
-            font-size: 11px;
-            font-weight: 600;
+            font-size: 13px;
+            font-weight: 500;
             color: var(--text-sub);
-            margin-bottom: 5px;
-            margin-left: 5px;
+            margin-bottom: 6px;
+            margin-left: 4px;
         }
 
         input,
         textarea {
             width: 100%;
-            padding: 12px 15px;
+            padding: 12px 16px;
             background: var(--input-bg);
-            border: 1px solid #dfe6e9;
-            border-radius: 12px;
-            font-size: 14px;
+            border: 1px solid transparent;
+            border-radius: 10px;
+            font-size: 16px; /* iOS standard to prevent zoom */
             font-family: inherit;
             box-sizing: border-box;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
+            color: var(--text-main);
         }
 
         input:focus,
         textarea:focus {
             outline: none;
-            border-color: var(--primary-light);
+            border-color: var(--primary);
             background: #fff;
         }
 
@@ -101,28 +109,29 @@
             display: flex;
             flex-wrap: wrap;
             gap: 8px;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
         }
 
         .chip {
-            padding: 8px 15px;
+            padding: 8px 16px;
             background: var(--input-bg);
-            border-radius: 20px;
-            font-size: 12px;
+            border-radius: 999px; /* pill shape */
+            font-size: 14px;
             font-weight: 500;
             cursor: pointer;
             border: none;
-            color: var(--text-sub);
+            color: var(--text-main);
+            transition: all 0.2s ease;
         }
 
         .chip.active {
             background: var(--primary);
-            color: white;
+            color: #fff;
         }
 
         .row {
             display: flex;
-            gap: 10px;
+            gap: 12px;
         }
 
         .row>div {
@@ -132,15 +141,20 @@
         .btn-export {
             width: 100%;
             padding: 16px;
-            background: linear-gradient(135deg, var(--primary), #8e44ad);
+            background: var(--primary);
             color: white;
             border: none;
-            border-radius: 15px;
-            font-size: 16px;
-            font-weight: 700;
+            border-radius: 14px;
+            font-size: 17px;
+            font-weight: 600;
             cursor: pointer;
             margin-top: 10px;
-            box-shadow: 0 6px 20px rgba(108, 92, 231, 0.4);
+            transition: transform 0.1s ease, opacity 0.2s ease;
+        }
+
+        .btn-export:active {
+            transform: scale(0.98);
+            opacity: 0.8;
         }
 
         /* Banner Ads */
@@ -223,10 +237,11 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.95);
+            background: rgba(0, 0, 0, 0.4);
             z-index: 3000;
-            color: white;
-            backdrop-filter: blur(15px);
+            color: var(--text-main);
+            backdrop-filter: saturate(180%) blur(20px);
+            -webkit-backdrop-filter: saturate(180%) blur(20px);
             flex-direction: column;
             align-items: center;
             justify-content: center;
@@ -235,15 +250,23 @@
 
         .ad-content-new {
             width: 90%;
-            max-width: 380px;
-            background: white;
-            border-radius: 30px;
+            max-width: 320px;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 20px;
             overflow: hidden;
-            color: #333;
+            color: var(--text-main);
             text-align: center;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
             display: flex;
             flex-direction: column;
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0.9); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
         }
 
         .ad-image-container {
@@ -262,11 +285,11 @@
         }
 
         .ad-image-container:hover img {
-            transform: scale(1.05);
+            transform: scale(1.02);
         }
 
         .ad-footer {
-            padding: 20px;
+            padding: 24px 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -276,15 +299,20 @@
             display: none;
             width: 100%;
             padding: 14px;
-            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            background: #34C759; /* iOS Green */
             color: white;
             border: none;
-            border-radius: 15px;
-            font-size: 16px;
-            font-weight: 700;
+            border-radius: 14px;
+            font-size: 17px;
+            font-weight: 600;
             cursor: pointer;
-            margin-top: 10px;
-            box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3);
+            margin-top: 12px;
+            transition: opacity 0.2s ease, transform 0.1s ease;
+        }
+
+        #btnConfirmExport:active {
+            opacity: 0.8;
+            transform: scale(0.98);
         }
 
         .timer-small {
@@ -293,21 +321,73 @@
             margin-top: 5px;
             font-weight: 600;
         }
+        /* iOS Toggle Switch */
+        .toggle-wrapper {
+            background: var(--card-bg);
+            padding: 16px;
+            border-radius: 14px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .toggle-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+        }
+
+        .toggle-label {
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--text-main);
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 51px;
+            height: 31px;
+            background: #E9E9EA;
+            border-radius: 31px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 27px;
+            height: 27px;
+            background: #ffffff;
+            border-radius: 50%;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.15), 0 3px 1px rgba(0,0,0,0.06);
+            transition: left 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .toggle-switch.active {
+            background: #34C759;
+        }
+
+        .toggle-switch.active::after {
+            left: 22px;
+        }
+
+        #pageCountContainer {
+            display: none;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 0.5px solid var(--divider);
+        }
     </style>
 </head>
 
 <body>
 
-    <div class="app-header" style="position: relative;">
-        <a href="admin.html"
-            style="position: absolute; right: 20px; top: 25px; color: white; text-decoration: none; font-size: 13px; font-weight: 600; padding: 6px 12px; background: rgba(255,255,255,0.2); border-radius: 20px; backdrop-filter: blur(5px); display: flex; align-items: center; gap: 5px;">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                stroke-linecap="round" stroke-linejoin="round">
-                <path
-                    d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.1a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
-                <circle cx="12" cy="12" r="3" />
-            </svg> Admin
-        </a>
+    <div class="app-header">
         <h1 style="margin:0; font-size: 22px;">CoverPages Pro</h1>
         <p style="margin:5px 0 0; font-size: 12px; opacity: 0.8;">Premium Lab Report Generator</p>
     </div>
@@ -443,7 +523,18 @@
         <!-- Bottom Ad Banner between Step 3 and Export Button -->
         <div class="ad-banner" id="adBottom" style="margin-top: 10px; margin-bottom: 20px;"></div>
 
-        <button class="btn-export" onclick="startExport()">GENERATE A4 PDF</button>
+        <!-- Cage Only Pages Toggle -->
+        <div class="toggle-wrapper">
+            <div class="toggle-row">
+                <span class="toggle-label">Cage Only Pages</span>
+                <div class="toggle-switch" id="cageToggle" onclick="toggleCageMode()"></div>
+            </div>
+            <div id="pageCountContainer">
+                <input type="number" id="cagePageCount" placeholder="Number of pages (e.g. 5)" min="1" max="50">
+            </div>
+        </div>
+
+        <button class="btn-export" onclick="showRatingModal()">GENERATE A4 PDF</button>
 
         <div style="text-align: center; margin-top: 30px; padding: 20px; border-top: 1px solid #eee;">
             <p style="font-size: 13px; color: var(--text-sub); margin-bottom: 5px;">
@@ -455,9 +546,63 @@
             </a>
             <p style="font-size: 10px; color: #ccc; margin-top: 15px;">© 2025 CoverPages Pro - Civil Engineering 34th
                 Batch</p>
+
+            <a href="admin.html"
+                style="display: inline-flex; align-items: center; gap: 5px; margin-top: 25px; color: var(--primary); text-decoration: none; font-size: 13px; font-weight: 500; padding: 10px 16px; background: rgba(0, 122, 255, 0.1); border-radius: 999px; transition: opacity 0.2s;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path
+                        d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.1a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
+                    <circle cx="12" cy="12" r="3" />
+                </svg> Admin Dashboard
+            </a>
         </div>
 
     </div>
+    </div>
+
+    <div id="ratingOverlay" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.4); z-index: 4005; align-items: center; justify-content: center; backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px); transition: all 0.3s ease;">
+        <div style="background: rgba(255, 255, 255, 0.95); padding: 30px 25px; border-radius: 24px; text-align: center; max-width: 340px; width: 90%; box-shadow: 0 10px 40px rgba(0,0,0,0.15); animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
+            <h3 style="margin-top: 0; margin-bottom: 10px; font-size: 20px; color: var(--text-main);">Rate Our Service</h3>
+            <p style="font-size: 14px; color: var(--text-sub); margin-bottom: 15px; line-height: 1.4;">How would you rate your experience with CoverPages Pro?</p>
+            
+            <div style="display: flex; justify-content: center; gap: 8px; margin-bottom: 10px; font-size: 35px; cursor: pointer; user-select: none;">
+                <span class="star-btn" onclick="updateStarUI(1)" style="color:#ccc;">☆</span>
+                <span class="star-btn" onclick="updateStarUI(2)" style="color:#ccc;">☆</span>
+                <span class="star-btn" onclick="updateStarUI(3)" style="color:#ccc;">☆</span>
+                <span class="star-btn" onclick="updateStarUI(4)" style="color:#ccc;">☆</span>
+                <span class="star-btn" onclick="updateStarUI(5)" style="color:#ccc;">☆</span>
+            </div>
+            
+            <div id="displayAvgRating" style="font-size: 13px; color: var(--text-sub); margin-bottom: 25px; font-weight: 500;">No ratings yet</div>
+
+            <div style="display: flex; gap: 10px;">
+                <button onclick="skipRating()" style="flex: 1; padding: 12px; border-radius: 12px; border: none; background: #E9E9EB; color: var(--text-main); font-weight: 600; font-size: 15px; cursor: pointer;">Skip</button>
+                <button onclick="submitRating()" style="flex: 1; padding: 12px; border-radius: 12px; border: none; background: #34C759; color: white; font-weight: 600; font-size: 15px; cursor: pointer;">Submit</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="feedbackOverlay" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.4); z-index: 4000; align-items: center; justify-content: center; backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px); transition: all 0.3s ease;">
+        <div style="background: rgba(255, 255, 255, 0.95); padding: 30px 25px; border-radius: 24px; text-align: center; max-width: 340px; width: 90%; box-shadow: 0 10px 40px rgba(0,0,0,0.15); animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
+            <div id="feedbackStep1">
+                <h3 style="margin-top: 0; margin-bottom: 10px; font-size: 20px; color: var(--text-main);">Help Us Improve!</h3>
+                <p style="font-size: 14px; color: var(--text-sub); margin-bottom: 25px; line-height: 1.4;">Is there anything we can improve or any new features you'd like to see in CoverPages Pro?</p>
+                <div style="display: flex; gap: 10px;">
+                    <button onclick="handleFeedback('no')" style="flex: 1; padding: 12px; border-radius: 12px; border: none; background: #E9E9EB; color: var(--text-main); font-weight: 600; font-size: 16px; cursor: pointer;">No, Thanks</button>
+                    <button onclick="handleFeedback('yes')" style="flex: 1; padding: 12px; border-radius: 12px; border: none; background: #007AFF; color: white; font-weight: 600; font-size: 16px; cursor: pointer;">Yes, I have an idea</button>
+                </div>
+            </div>
+            
+            <div id="feedbackStep2" style="display: none;">
+                <h3 style="margin-top: 0; margin-bottom: 10px; font-size: 18px; color: var(--text-main);">Your Suggestions</h3>
+                <textarea id="feedbackText" rows="4" placeholder="Tell us how we can improve..." style="width: 100%; padding: 12px; border-radius: 12px; border: 1px solid var(--divider); background: #F2F2F7; font-family: inherit; font-size: 14px; margin-bottom: 15px; outline: none; resize: none; box-sizing: border-box;"></textarea>
+                <div style="display: flex; gap: 10px;">
+                    <button onclick="skipFeedback()" style="flex: 1; padding: 12px; border-radius: 12px; border: none; background: #E9E9EB; color: var(--text-main); font-weight: 600; font-size: 15px; cursor: pointer;">Skip</button>
+                    <button onclick="submitFeedback()" style="flex: 1; padding: 12px; border-radius: 12px; border: none; background: #34C759; color: white; font-weight: 600; font-size: 15px; cursor: pointer;">Send Feedback</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div id="adOverlay">
@@ -505,7 +650,118 @@
             element.classList.add('active');
         }
 
+        function toggleCageMode() {
+            const toggle = document.getElementById('cageToggle');
+            const pageCountContainer = document.getElementById('pageCountContainer');
+            toggle.classList.toggle('active');
+            if (toggle.classList.contains('active')) {
+                pageCountContainer.style.display = 'block';
+            } else {
+                pageCountContainer.style.display = 'none';
+            }
+        }
 
+        function toggleCageMode() {
+            const toggle = document.getElementById('cageToggle');
+            const pageCountContainer = document.getElementById('pageCountContainer');
+            toggle.classList.toggle('active');
+            if (toggle.classList.contains('active')) {
+                pageCountContainer.style.display = 'block';
+            } else {
+                pageCountContainer.style.display = 'none';
+            }
+        }
+
+        let currentRating = 0;
+
+        function showRatingModal() {
+            updateStarUI(0);
+            document.getElementById('ratingOverlay').style.display = 'flex';
+        }
+
+        function updateStarUI(rating) {
+            currentRating = rating;
+            const stars = document.querySelectorAll('.star-btn');
+            stars.forEach((star, index) => {
+                if (index < rating) {
+                    star.innerHTML = '★';
+                    star.style.color = '#FFD700';
+                } else {
+                    star.innerHTML = '☆';
+                    star.style.color = '#ccc';
+                }
+            });
+        }
+
+        function skipRating() {
+            document.getElementById('ratingOverlay').style.display = 'none';
+            checkFeedbackBeforeExport();
+        }
+
+        async function submitRating() {
+            if (currentRating === 0) {
+                skipRating();
+                return;
+            }
+            
+            // Save rating to Supabase
+            try {
+                const { data: scoreData } = await supabaseClient.from('app_stats').select('stat_value').eq('stat_name', 'total_stars').single();
+                const { data: countData } = await supabaseClient.from('app_stats').select('stat_value').eq('stat_name', 'total_ratings').single();
+                
+                let newScore = currentRating;
+                let newCount = 1;
+                
+                if (scoreData) newScore += scoreData.stat_value;
+                if (countData) newCount += countData.stat_value;
+                
+                await supabaseClient.from('app_stats').upsert({ stat_name: 'total_stars', stat_value: newScore });
+                await supabaseClient.from('app_stats').upsert({ stat_name: 'total_ratings', stat_value: newCount });
+            } catch(err) {
+                console.warn("Rating save failed:", err);
+            }
+            
+            document.getElementById('ratingOverlay').style.display = 'none';
+            checkFeedbackBeforeExport();
+        }
+
+        function checkFeedbackBeforeExport() {
+            document.getElementById('feedbackStep1').style.display = 'block';
+            document.getElementById('feedbackStep2').style.display = 'none';
+            document.getElementById('feedbackText').value = '';
+            document.getElementById('feedbackOverlay').style.display = 'flex';
+        }
+
+        function handleFeedback(choice) {
+            if (choice === 'no') {
+                document.getElementById('feedbackOverlay').style.display = 'none';
+                startExport();
+            } else {
+                document.getElementById('feedbackStep1').style.display = 'none';
+                document.getElementById('feedbackStep2').style.display = 'block';
+            }
+        }
+
+        function skipFeedback() {
+            document.getElementById('feedbackOverlay').style.display = 'none';
+            startExport();
+        }
+
+        function submitFeedback() {
+            const text = document.getElementById('feedbackText').value.trim();
+            if (text) {
+                const subject = encodeURIComponent("CoverPages Pro Improvement Feedback");
+                const body = encodeURIComponent(text);
+                window.location.href = `mailto:34batchcivilengineering@gmail.com?subject=${subject}&body=${body}`;
+                
+                setTimeout(() => {
+                    document.getElementById('feedbackOverlay').style.display = 'none';
+                    startExport();
+                }, 500);
+            } else {
+                skipFeedback();
+            }
+        }
 
         // මම මේක ඔයාගේ අලුත් Sketch එකට අනුව ලස්සනට හැදුවා
         // --- Supabase Configuration ---
@@ -516,18 +772,31 @@
         // Global State
         let globalExportCount = 14520;
 
-        // 1. Handle Global Export Count (Realtime)
+        // 1. Handle Global Export Count & Ratings (Realtime)
         async function fetchInitialStats() {
             try {
                 const { data, error } = await supabaseClient
                     .from('app_stats')
-                    .select('stat_value')
-                    .eq('stat_name', 'total_exports')
-                    .single();
+                    .select('stat_name, stat_value');
 
                 if (data) {
-                    globalExportCount = data.stat_value;
+                    let exports = 14520;
+                    let stars = 0;
+                    let ratings = 0;
+                    
+                    data.forEach(item => {
+                        if (item.stat_name === 'total_exports') exports = item.stat_value;
+                        if (item.stat_name === 'total_stars') stars = item.stat_value;
+                        if (item.stat_name === 'total_ratings') ratings = item.stat_value;
+                    });
+                    
+                    globalExportCount = exports;
                     document.getElementById('totalExports').innerText = globalExportCount.toLocaleString();
+                    
+                    if (ratings > 0) {
+                        const avg = (stars / ratings).toFixed(1);
+                        document.getElementById('displayAvgRating').innerText = `Average: ${avg} ★ (${ratings} ratings)`;
+                    }
                 }
             } catch (err) { console.error("Error fetching stats:", err); }
         }
@@ -555,21 +824,6 @@
                     const date = new Date(log.created_at);
                     return date >= firstDayLastMonth && date <= lastDayLastMonth;
                 });
-
-                // Fallback 1: Last 30 days if last calendar month has no data
-                if (filteredLogs.length < 3) {
-                    const thirtyDaysAgo = new Date();
-                    thirtyDaysAgo.setDate(now.getDate() - 30);
-                    filteredLogs = logs.filter(log => {
-                        if (!log.created_at || !log.course) return false;
-                        return new Date(log.created_at) >= thirtyDaysAgo;
-                    });
-                }
-
-                // Fallback 2: All time if still no data
-                if (filteredLogs.length < 3) {
-                    filteredLogs = logs.filter(log => log.course);
-                }
 
                 // Count occurrences of courses
                 const counts = {};
@@ -796,7 +1050,7 @@
 
             // --- CONFIGURATION ---
             document.getElementById('adBigImage').src = AD_CONFIG.big_ad.img;
-            
+
             let formattedBigAdLink = AD_CONFIG.big_ad.link || '';
             if (formattedBigAdLink && !/^https?:\/\//i.test(formattedBigAdLink) && !/^mailto:/i.test(formattedBigAdLink)) {
                 formattedBigAdLink = 'https://' + formattedBigAdLink;
@@ -868,8 +1122,30 @@
                 console.warn("Analytics insert failed:", err);
             }
 
+            const isCageOnly = document.getElementById('cageToggle').classList.contains('active');
+            const cagePageCount = parseInt(document.getElementById('cagePageCount').value) || 1;
+
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+
+            const PAGE_W = 210;
+            const PAGE_H = 297;
+            const ML = 25; // Binding Margin
+            const MR = 10;  // Right Margin
+            const MT = 10;  // Top Margin
+            const MB = 10;  // Bottom Margin
+            const INNER_W = PAGE_W - ML - MR;
+            const INNER_H = PAGE_H - MT - MB;
+
+            if (isCageOnly) {
+                for (let i = 0; i < cagePageCount; i++) {
+                    if (i > 0) doc.addPage();
+                    doc.setLineWidth(0.3);
+                    doc.rect(ML, MT, INNER_W, INNER_H);
+                }
+                doc.save(`Cage_Only_Pages_${cagePageCount}.pdf`);
+                return;
+            }
 
 
 
@@ -891,15 +1167,6 @@
                 dateInst: document.getElementById('dateInst').value || "##/##/202#",
                 dateSub: document.getElementById('dateSub').value || "##/##/202#"
             };
-
-            const PAGE_W = 210;
-            const PAGE_H = 297;
-            const ML = 25; // Sketch එකේ තියෙන Binding Margin
-            const MR = 10;  // Sketch එකේ තියෙන Right Margin
-            const MT = 10;  // Sketch එකේ තියෙන Top Margin
-            const MB = 10;  // Sketch එකේ තියෙන Bottom Margin
-            const INNER_W = PAGE_W - ML - MR;
-            const INNER_H = PAGE_H - MT - MB;
 
             // Border එක ගැහීම
             doc.setLineWidth(0.3);
