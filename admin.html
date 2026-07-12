@@ -5,40 +5,40 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CoverPages Pro - Admin Dashboard</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
     <!-- Chart.js and Supabase CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
-            --bg-main: #0b0c16;
-            --bg-card: rgba(18, 20, 38, 0.7);
-            --border-glow: rgba(108, 92, 231, 0.2);
-            --primary: #8e44ad;
-            --accent-cyan: #00f2fe;
-            --accent-pink: #ff007f;
-            --accent-purple: #8257e5;
-            --accent-green: #2ecc71;
-            --text-title: #ffffff;
-            --text-body: #a0aec0;
-            --text-muted: #4a5568;
+            --bg-main: #000000;
+            --bg-card: #1C1C1E;
+            --border-glow: rgba(255, 255, 255, 0.1);
+            --primary: #0A84FF; /* iOS Blue */
+            --accent-cyan: #5AC8FA;
+            --accent-pink: #FF375F;
+            --accent-purple: #BF5AF2;
+            --accent-green: #30D158;
+            --text-title: #FFFFFF;
+            --text-body: rgba(235, 235, 245, 0.6);
+            --text-muted: rgba(235, 235, 245, 0.3);
+            --divider: rgba(84, 84, 88, 0.65);
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", sans-serif;
+            -webkit-font-smoothing: antialiased;
         }
 
         body {
             background-color: var(--bg-main);
             color: var(--text-body);
             min-height: 100vh;
-            background-image: 
-                radial-gradient(circle at 10% 20%, rgba(108, 92, 231, 0.08) 0%, transparent 40%),
-                radial-gradient(circle at 90% 80%, rgba(0, 242, 254, 0.05) 0%, transparent 40%);
-            background-attachment: fixed;
             padding-bottom: 60px;
         }
 
@@ -46,92 +46,69 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 25px 40px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
+            padding: 16px 20px;
+            border-bottom: 0.5px solid var(--divider);
+            backdrop-filter: saturate(180%) blur(20px);
+            -webkit-backdrop-filter: saturate(180%) blur(20px);
             position: sticky;
             top: 0;
             z-index: 100;
-            background: rgba(11, 12, 22, 0.8);
+            background: rgba(28, 28, 30, 0.7);
         }
 
         .header-title h1 {
-            font-family: 'Outfit', sans-serif;
-            font-size: 24px;
-            font-weight: 800;
-            background: linear-gradient(135deg, #ffffff 30%, var(--accent-cyan));
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
+            font-size: 17px;
+            font-weight: 600;
+            color: var(--text-title);
+            letter-spacing: -0.4px;
         }
 
         .header-title p {
             font-size: 12px;
             color: var(--text-body);
-            opacity: 0.6;
             margin-top: 2px;
         }
 
         .btn-back {
             display: flex;
             align-items: center;
-            gap: 8px;
-            color: white;
+            gap: 6px;
+            color: var(--primary);
             text-decoration: none;
-            background: rgba(255, 255, 255, 0.05);
-            padding: 10px 20px;
-            border-radius: 14px;
-            font-size: 14px;
-            font-weight: 600;
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 17px;
+            font-weight: 400;
+            transition: opacity 0.2s ease;
         }
 
-        .btn-back:hover {
-            background: rgba(255, 255, 255, 0.1);
-            transform: translateX(-3px);
-            border-color: rgba(108, 92, 231, 0.4);
-            box-shadow: 0 0 20px rgba(108, 92, 231, 0.2);
+        .btn-back:active {
+            opacity: 0.6;
         }
 
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 30px 20px;
+            padding: 24px 20px;
         }
 
         /* Odometer Counter */
         .live-counter-panel {
             background: var(--bg-card);
-            border: 1px solid var(--border-glow);
-            border-radius: 24px;
-            padding: 35px;
-            margin-bottom: 30px;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 24px;
             text-align: center;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-            backdrop-filter: blur(16px);
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
             position: relative;
             overflow: hidden;
         }
 
-        .live-counter-panel::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 150px;
-            height: 2px;
-            background: linear-gradient(90deg, transparent, var(--accent-cyan), transparent);
-        }
-
         .counter-label {
-            font-size: 14px;
-            font-weight: 700;
-            color: var(--accent-cyan);
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-body);
             text-transform: uppercase;
-            letter-spacing: 2px;
-            margin-bottom: 20px;
+            letter-spacing: -0.08px;
+            margin-bottom: 16px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -141,17 +118,17 @@
         .pulse-dot {
             width: 8px;
             height: 8px;
-            background: var(--accent-cyan);
+            background: var(--accent-green);
             border-radius: 50%;
             display: inline-block;
-            box-shadow: 0 0 10px var(--accent-cyan);
-            animation: pulse 1.8s infinite;
+            box-shadow: 0 0 8px var(--accent-green);
+            animation: pulse 2s infinite;
         }
 
         @keyframes pulse {
-            0% { transform: scale(0.9); opacity: 0.6; }
-            50% { transform: scale(1.3); opacity: 1; box-shadow: 0 0 15px var(--accent-cyan); }
-            100% { transform: scale(0.9); opacity: 0.6; }
+            0% { transform: scale(0.9); opacity: 0.7; }
+            50% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(0.9); opacity: 0.7; }
         }
 
         /* Roller Odometer Styles */
@@ -217,20 +194,18 @@
 
         .summary-card {
             background: var(--bg-card);
-            border: 1px solid rgba(255, 255, 255, 0.03);
-            border-radius: 20px;
+            border-radius: 18px;
             padding: 24px;
             display: flex;
             align-items: center;
             gap: 16px;
-            backdrop-filter: blur(10px);
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
         }
 
-        .summary-card:hover {
-            transform: translateY(-2px);
-            border-color: rgba(255, 255, 255, 0.08);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        .summary-card:active {
+            transform: scale(0.98);
+            background: #2C2C2E;
         }
 
         .summary-icon {
@@ -242,10 +217,25 @@
             justify-content: center;
         }
 
-        .icon-blue { background: rgba(0, 242, 254, 0.1); color: var(--accent-cyan); }
-        .icon-purple { background: rgba(162, 155, 254, 0.1); color: #a29bfe; }
-        .icon-pink { background: rgba(255, 0, 127, 0.1); color: var(--accent-pink); }
-        .icon-green { background: rgba(46, 204, 113, 0.1); color: var(--accent-green); }
+        .icon-blue {
+            background: rgba(0, 242, 254, 0.1);
+            color: var(--accent-cyan);
+        }
+
+        .icon-purple {
+            background: rgba(162, 155, 254, 0.1);
+            color: #a29bfe;
+        }
+
+        .icon-pink {
+            background: rgba(255, 0, 127, 0.1);
+            color: var(--accent-pink);
+        }
+
+        .icon-green {
+            background: rgba(46, 204, 113, 0.1);
+            color: var(--accent-green);
+        }
 
         .summary-info h4 {
             font-size: 12px;
@@ -277,11 +267,9 @@
 
         .chart-card {
             background: var(--bg-card);
-            border: 1px solid rgba(255, 255, 255, 0.03);
-            border-radius: 24px;
-            padding: 28px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
-            backdrop-filter: blur(16px);
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
             display: flex;
             flex-direction: column;
         }
@@ -294,7 +282,7 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 24px;
+            margin-bottom: 20px;
         }
 
         .chart-title h3 {
@@ -320,41 +308,39 @@
         .timeframe-selector-wrapper {
             display: flex;
             justify-content: center;
-            gap: 12px;
+            gap: 4px;
             margin-bottom: 30px;
-            background: rgba(18, 20, 38, 0.4);
-            padding: 8px;
-            border-radius: 16px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            max-width: 400px;
+            background: #2C2C2E;
+            padding: 4px;
+            border-radius: 10px;
+            max-width: 320px;
             margin-left: auto;
             margin-right: auto;
-            backdrop-filter: blur(10px);
         }
 
         .timeframe-btn {
             flex: 1;
-            padding: 10px 16px;
+            padding: 8px 12px;
             background: transparent;
             border: none;
             color: var(--text-body);
             font-size: 13px;
-            font-weight: 600;
-            border-radius: 12px;
+            font-weight: 500;
+            border-radius: 8px;
             cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.2s ease;
             outline: none;
         }
 
         .timeframe-btn:hover {
             color: white;
-            background: rgba(255, 255, 255, 0.03);
+            background: rgba(255, 255, 255, 0.05);
         }
 
         .timeframe-btn.active {
-            background: linear-gradient(135deg, var(--accent-purple), var(--primary));
+            background: #636366; /* iOS Segement active */
             color: white;
-            box-shadow: 0 4px 15px rgba(108, 92, 231, 0.3);
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12), 0 3px 1px rgba(0, 0, 0, 0.04);
         }
 
         /* Logs Table Styles */
@@ -367,7 +353,8 @@
             background: rgba(255, 255, 255, 0.02);
         }
 
-        .logs-table th, .logs-table td {
+        .logs-table th,
+        .logs-table td {
             padding: 14px 16px;
             vertical-align: middle;
             color: var(--text-body);
@@ -435,18 +422,31 @@
 <body>
 
     <!-- Admin Authentication Overlay -->
-    <div id="loginOverlay" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #0b0c16; z-index: 9999; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(20px);">
-        <div style="background: rgba(18, 20, 38, 0.85); padding: 40px; border-radius: 24px; border: 1px solid rgba(108, 92, 231, 0.3); box-shadow: 0 15px 50px rgba(0, 0, 0, 0.5); text-align: center; max-width: 400px; width: 90%;">
-            <div style="width: 60px; height: 60px; background: rgba(142, 68, 173, 0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00f2fe" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+    <div id="loginOverlay"
+        style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000000; z-index: 9999; display: flex; align-items: center; justify-content: center; backdrop-filter: saturate(180%) blur(20px);">
+        <div
+            style="background: #1C1C1E; padding: 40px; border-radius: 20px; text-align: center; max-width: 400px; width: 90%; box-shadow: 0 8px 32px rgba(0,0,0,0.4);">
+            <div
+                style="width: 60px; height: 60px; background: rgba(10, 132, 255, 0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0A84FF" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                </svg>
             </div>
-            <h2 style="color: white; font-size: 22px; font-weight: 700; margin-bottom: 8px; font-family: 'Outfit', sans-serif;">Security Verification</h2>
-            <p style="color: #a0aec0; font-size: 13px; margin-bottom: 25px;">Enter the administrator passcode to access analytics.</p>
+            <h2
+                style="color: white; font-size: 22px; font-weight: 600; margin-bottom: 8px; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;">
+                Security Verification</h2>
+            <p style="color: rgba(235, 235, 245, 0.6); font-size: 13px; margin-bottom: 25px;">Enter the administrator passcode to access analytics.</p>
             <div style="position: relative; margin-bottom: 20px;">
-                <input type="password" id="adminPassword" placeholder="Enter passcode" style="width: 100%; padding: 14px 20px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; color: white; font-size: 15px; font-weight: 500; outline: none; text-align: center; transition: all 0.3s;" onkeydown="if(event.key==='Enter') checkAdminPassword()">
+                <input type="password" id="adminPassword" placeholder="Enter passcode"
+                    style="width: 100%; padding: 14px 20px; background: #2C2C2E; border: none; border-radius: 12px; color: white; font-size: 16px; outline: none; text-align: center; transition: all 0.2s;"
+                    onkeydown="if(event.key==='Enter') checkAdminPassword()">
             </div>
-            <button id="btnLogin" onclick="checkAdminPassword()" style="width: 100%; padding: 14px; background: linear-gradient(135deg, var(--primary), #8e44ad); border: none; border-radius: 14px; color: white; font-size: 15px; font-weight: 700; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 15px rgba(108, 92, 231, 0.3);">Access Dashboard</button>
-            <p id="loginError" style="color: #ff007f; font-size: 12px; margin-top: 15px; display: none; font-weight: 600;">Incorrect passcode. Try again.</p>
+            <button id="btnLogin" onclick="checkAdminPassword()"
+                style="width: 100%; padding: 14px; background: #0A84FF; border: none; border-radius: 12px; color: white; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.2s;">Access Dashboard</button>
+            <p id="loginError"
+                style="color: #FF375F; font-size: 13px; margin-top: 15px; display: none; font-weight: 500;">Incorrect passcode. Try again.</p>
         </div>
     </div>
 
@@ -456,7 +456,10 @@
             <p>CoverPages Pro System Insights</p>
         </div>
         <a href="index.html" class="btn-back">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 12H5M12 19l-7-7 7-7" />
+            </svg>
             Back to App
         </a>
     </header>
@@ -474,7 +477,8 @@
 
         <!-- Timeframe Selector -->
         <div class="timeframe-selector-wrapper">
-            <button class="timeframe-btn active" id="btnTimeframeWeek" onclick="changeTimeframe('week')">This Week</button>
+            <button class="timeframe-btn active" id="btnTimeframeWeek" onclick="changeTimeframe('week')">This
+                Week</button>
             <button class="timeframe-btn" id="btnTimeframeMonth" onclick="changeTimeframe('month')">This Month</button>
             <button class="timeframe-btn" id="btnTimeframeAll" onclick="changeTimeframe('all')">All Time</button>
         </div>
@@ -483,7 +487,13 @@
         <div class="stats-summary-grid">
             <div class="summary-card">
                 <div class="summary-icon icon-blue">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                        <circle cx="9" cy="7" r="4" />
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                    </svg>
                 </div>
                 <div class="summary-info">
                     <h4>Active Users</h4>
@@ -492,7 +502,10 @@
             </div>
             <div class="summary-card">
                 <div class="summary-icon icon-purple">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h20M20 5c-9.17 0-10 7-18 7M2 12c8 0 9 7 18 7"/></svg>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M2 12h20M20 5c-9.17 0-10 7-18 7M2 12c8 0 9 7 18 7" />
+                    </svg>
                 </div>
                 <div class="summary-info">
                     <h4 id="labelAdViews">Total Ad Impressions</h4>
@@ -501,7 +514,10 @@
             </div>
             <div class="summary-card">
                 <div class="summary-icon icon-pink">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M10 14 21 3M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M15 3h6v6M10 14 21 3M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                    </svg>
                 </div>
                 <div class="summary-info">
                     <h4 id="labelAdClicks">Total Ad Clicks</h4>
@@ -510,11 +526,31 @@
             </div>
             <div class="summary-card">
                 <div class="summary-icon icon-green">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                        <polyline points="14 2 14 8 20 8" />
+                        <line x1="16" y1="13" x2="8" y2="13" />
+                        <line x1="16" y1="17" x2="8" y2="17" />
+                        <polyline points="10 9 9 9 8 9" />
+                    </svg>
                 </div>
                 <div class="summary-info">
                     <h4 id="labelExports">Today's Exports</h4>
                     <p id="cardTodayExports">0</p>
+                </div>
+            </div>
+            
+            <div class="summary-card">
+                <div class="summary-icon" style="background: rgba(255, 215, 0, 0.1); color: #FFD700;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                    </svg>
+                </div>
+                <div class="summary-info">
+                    <h4>Average Rating</h4>
+                    <p id="cardAverageRating">-- / 5.0</p>
                 </div>
             </div>
         </div>
@@ -568,14 +604,22 @@
                     <h3>Export Details Log</h3>
                     <p id="tableSubTitle">Showing recent student report generations</p>
                 </div>
-                <div class="table-actions" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-left: auto;">
+                <div class="table-actions"
+                    style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-left: auto;">
                     <!-- Search Input -->
                     <div style="position: relative;">
-                        <input type="text" id="logSearch" placeholder="Search by name, subject, course..." oninput="handleTableSearch()" style="background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 10px 14px 10px 34px; color: white; font-size: 13px; outline: none; width: 240px; transition: all 0.3s;">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-body)" stroke-width="2.5" style="position: absolute; left: 12px; top: 13px;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                        <input type="text" id="logSearch" placeholder="Search by name, subject, course..."
+                            oninput="handleTableSearch()"
+                            style="background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 10px 14px 10px 34px; color: white; font-size: 13px; outline: none; width: 240px; transition: all 0.3s;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-body)"
+                            stroke-width="2.5" style="position: absolute; left: 12px; top: 13px;">
+                            <circle cx="11" cy="11" r="8" />
+                            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                        </svg>
                     </div>
                     <!-- Course Filter Dropdown -->
-                    <select id="courseFilter" onchange="handleTableFilter()" style="background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 10px 14px; color: var(--text-body); font-size: 13px; outline: none; cursor: pointer; transition: all 0.3s;">
+                    <select id="courseFilter" onchange="handleTableFilter()"
+                        style="background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 10px 14px; color: var(--text-body); font-size: 13px; outline: none; cursor: pointer; transition: all 0.3s;">
                         <option value="all">All Courses</option>
                         <option value="HNDCE">HNDCE</option>
                         <option value="HNDQS">HNDQS</option>
@@ -585,11 +629,13 @@
                     </select>
                 </div>
             </div>
-            
+
             <div style="overflow-x: auto; width: 100%; margin-top: 15px;">
-                <table class="logs-table" style="width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; min-width: 700px;">
+                <table class="logs-table"
+                    style="width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; min-width: 700px;">
                     <thead>
-                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.08); color: var(--accent-cyan); font-weight: 700;">
+                        <tr
+                            style="border-bottom: 1px solid rgba(255,255,255,0.08); color: var(--accent-cyan); font-weight: 700;">
                             <th style="padding: 14px 16px;">Date & Time</th>
                             <th style="padding: 14px 16px;">Student Details</th>
                             <th style="padding: 14px 16px;">Course Badge</th>
@@ -603,13 +649,16 @@
                     </tbody>
                 </table>
             </div>
-            
+
             <!-- Pagination Controls -->
-            <div class="pagination-wrapper" style="display: flex; align-items: center; justify-content: space-between; margin-top: 20px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.05); font-size: 12px; color: var(--text-body);">
+            <div class="pagination-wrapper"
+                style="display: flex; align-items: center; justify-content: space-between; margin-top: 20px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.05); font-size: 12px; color: var(--text-body);">
                 <div id="paginationInfo">Showing 0 to 0 of 0 logs</div>
                 <div style="display: flex; gap: 8px;">
-                    <button id="btnPrevPage" onclick="prevTablePage()" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); color: white; padding: 8px 14px; border-radius: 10px; cursor: pointer; font-weight: 600; transition: all 0.2s;">Previous</button>
-                    <button id="btnNextPage" onclick="nextTablePage()" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); color: white; padding: 8px 14px; border-radius: 10px; cursor: pointer; font-weight: 600; transition: all 0.2s;">Next</button>
+                    <button id="btnPrevPage" onclick="prevTablePage()"
+                        style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); color: white; padding: 8px 14px; border-radius: 10px; cursor: pointer; font-weight: 600; transition: all 0.2s;">Previous</button>
+                    <button id="btnNextPage" onclick="nextTablePage()"
+                        style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); color: white; padding: 8px 14px; border-radius: 10px; cursor: pointer; font-weight: 600; transition: all 0.2s;">Next</button>
                 </div>
             </div>
         </div>
@@ -638,9 +687,9 @@
         function initOdometer(targetNum) {
             const wrapper = document.getElementById('liveOdometer');
             wrapper.innerHTML = '';
-            
+
             const numStr = targetNum.toLocaleString('en-US');
-            
+
             for (let char of numStr) {
                 if (char === ',') {
                     const comma = document.createElement('span');
@@ -650,17 +699,17 @@
                 } else {
                     const digit = document.createElement('div');
                     digit.className = 'odometer-digit';
-                    
+
                     const reel = document.createElement('div');
                     reel.className = 'odometer-digit-reel';
-                    
+
                     // Create stack 0-9
                     for (let i = 0; i <= 9; i++) {
                         const span = document.createElement('span');
                         span.innerText = i;
                         reel.appendChild(span);
                     }
-                    
+
                     digit.appendChild(reel);
                     wrapper.appendChild(digit);
                 }
@@ -671,17 +720,17 @@
         function updateOdometer(targetNum) {
             const wrapper = document.getElementById('liveOdometer');
             const numStr = targetNum.toLocaleString('en-US');
-            
+
             // Check if count of elements matches string length (excluding commas vs digits)
             const digitsOnly = numStr.replace(/,/g, '');
             const reels = wrapper.querySelectorAll('.odometer-digit-reel');
-            
+
             if (reels.length !== digitsOnly.length) {
                 // Re-initialize if length changed
                 initOdometer(targetNum);
                 return;
             }
-            
+
             for (let i = 0; i < reels.length; i++) {
                 const val = parseInt(digitsOnly[i]);
                 reels[i].style.transform = `translateY(-${val * 60}px)`;
@@ -691,16 +740,29 @@
         // Realtime Presences & Stats
         async function fetchLiveStats() {
             try {
-                // Fetch exports count
+                // Fetch exports count and ratings
                 const { data, error } = await supabaseClient
                     .from('app_stats')
-                    .select('stat_value')
-                    .eq('stat_name', 'total_exports')
-                    .single();
+                    .select('stat_name, stat_value');
 
                 if (data) {
-                    currentCount = data.stat_value;
+                    let exports = currentCount;
+                    let stars = 0;
+                    let ratings = 0;
+
+                    data.forEach(item => {
+                        if (item.stat_name === 'total_exports') exports = item.stat_value;
+                        if (item.stat_name === 'total_stars') stars = item.stat_value;
+                        if (item.stat_name === 'total_ratings') ratings = item.stat_value;
+                    });
+
+                    currentCount = exports;
                     updateOdometer(currentCount);
+
+                    if (ratings > 0) {
+                        const avg = (stars / ratings).toFixed(1);
+                        document.getElementById('cardAverageRating').innerText = `${avg} / 5.0`;
+                    }
                 }
             } catch (err) {
                 console.error("Error fetching stats:", err);
@@ -714,6 +776,8 @@
                 if (payload.new.stat_name === 'total_exports') {
                     currentCount = payload.new.stat_value;
                     updateOdometer(currentCount);
+                } else if (payload.new.stat_name === 'total_stars' || payload.new.stat_name === 'total_ratings') {
+                    fetchLiveStats(); // Re-fetch to calculate avg properly since they update separately
                 }
             })
             .subscribe();
@@ -764,7 +828,7 @@
                     .select('created_at, student_name, course, academic_year, report_type, exp_no, subject_name, practical_name, reg_no')
                     .order('created_at', { ascending: false })
                     .limit(20000); // Increased limit to fetch more recent logs for charts
-                
+
                 const { data: adLogs, error: err2 } = await supabaseClient
                     .from('ad_logs')
                     .select('event_type, created_at')
@@ -786,12 +850,12 @@
         // Change timeframe logic
         function changeTimeframe(timeframe) {
             activeTimeframe = timeframe;
-            
+
             // Update active state in buttons UI
             document.querySelectorAll('.timeframe-btn').forEach(btn => {
                 btn.classList.remove('active');
             });
-            
+
             if (timeframe === 'week') {
                 document.getElementById('btnTimeframeWeek').classList.add('active');
             } else if (timeframe === 'month') {
@@ -894,7 +958,7 @@
                     const d = new Date();
                     d.setDate(today.getDate() - i);
                     labels.push(d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }));
-                    
+
                     const dateStr = d.toISOString().split('T')[0];
                     const dayExp = exportLogs.filter(l => l.created_at && l.created_at.startsWith(dateStr)).length;
                     const dayViews = adLogs.filter(l => l.created_at && l.created_at.startsWith(dateStr) && l.event_type === 'view').length;
@@ -909,7 +973,7 @@
                     const d = new Date();
                     d.setDate(today.getDate() - i);
                     labels.push(d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
-                    
+
                     const dateStr = d.toISOString().split('T')[0];
                     const dayExp = exportLogs.filter(l => l.created_at && l.created_at.startsWith(dateStr)).length;
                     const dayViews = adLogs.filter(l => l.created_at && l.created_at.startsWith(dateStr) && l.event_type === 'view').length;
@@ -942,7 +1006,7 @@
                         const d = new Date();
                         d.setDate(today.getDate() - i);
                         labels.push(d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
-                        
+
                         const dateStr = d.toISOString().split('T')[0];
                         const dayExp = exportLogs.filter(l => l.created_at && l.created_at.startsWith(dateStr)).length;
                         const dayViews = adLogs.filter(l => l.created_at && l.created_at.startsWith(dateStr) && l.event_type === 'view').length;
@@ -986,7 +1050,7 @@
                         dailyViewsCounts.push(monthsMap[key].views);
                         dailyClicksCounts.push(monthsMap[key].clicks);
                     });
-                    
+
                     if (labels.length === 0) {
                         labels = ['No Data'];
                         dailyExpCounts = [0];
@@ -1103,7 +1167,7 @@
         // Get logs filtered by search query, course filter, and active timeframe
         function getFilteredTableLogs() {
             let logs = [];
-            
+
             const cutoff = new Date();
             if (activeTimeframe === 'week') {
                 cutoff.setDate(cutoff.getDate() - 7);
@@ -1137,15 +1201,15 @@
                     const expNo = (l.exp_no || '').toLowerCase();
                     const type = (l.report_type || '').toLowerCase();
                     const regNo = (l.reg_no || '').toLowerCase();
-                    
-                    return stuName.includes(query) || 
-                           course.includes(query) || 
-                           year.includes(query) || 
-                           subject.includes(query) || 
-                           practical.includes(query) || 
-                           expNo.includes(query) || 
-                           regNo.includes(query) ||
-                           type.includes(query);
+
+                    return stuName.includes(query) ||
+                        course.includes(query) ||
+                        year.includes(query) ||
+                        subject.includes(query) ||
+                        practical.includes(query) ||
+                        expNo.includes(query) ||
+                        regNo.includes(query) ||
+                        type.includes(query);
                 });
             }
 
@@ -1156,18 +1220,18 @@
         function renderLogsTable() {
             const tableBody = document.getElementById('logsTableBody');
             const logs = getFilteredTableLogs();
-            
+
             const totalLogs = logs.length;
             const totalPages = Math.max(1, Math.ceil(totalLogs / tableLimit));
-            
+
             if (tablePage > totalPages) tablePage = totalPages;
             if (tablePage < 1) tablePage = 1;
-            
+
             const startIndex = (tablePage - 1) * tableLimit;
             const endIndex = Math.min(startIndex + tableLimit, totalLogs);
-            
+
             tableBody.innerHTML = '';
-            
+
             if (totalLogs === 0) {
                 tableBody.innerHTML = `
                     <tr>
@@ -1185,12 +1249,12 @@
                 document.getElementById('btnNextPage').style.cursor = 'not-allowed';
                 return;
             }
-            
+
             const pageLogs = logs.slice(startIndex, endIndex);
-            
+
             pageLogs.forEach(log => {
                 const tr = document.createElement('tr');
-                
+
                 let dateFormatted = 'N/A';
                 if (log.created_at) {
                     const dateObj = new Date(log.created_at);
@@ -1201,11 +1265,11 @@
                         minute: '2-digit'
                     });
                 }
-                
+
                 const badgeHTML = `<span class="badge-course">${log.academic_year || '2324'} ${log.course || 'HNDCE'}</span>`;
                 const isExp = (log.report_type || 'Experiment').toLowerCase() === 'experiment';
                 const typeBadgeHTML = `<span class="badge-type ${isExp ? 'experiment' : 'assignment'}">${log.report_type || 'Experiment'}</span>`;
-                
+
                 tr.innerHTML = `
                     <td style="padding: 14px 16px; font-weight: 500; color: white;">${dateFormatted}</td>
                     <td style="padding: 14px 16px;">
@@ -1225,19 +1289,19 @@
                         </span>
                     </td>
                 `;
-                
+
                 tableBody.appendChild(tr);
             });
-            
+
             document.getElementById('paginationInfo').innerText = `Showing ${startIndex + 1} to ${endIndex} of ${totalLogs} logs`;
-            
+
             const btnPrev = document.getElementById('btnPrevPage');
             const btnNext = document.getElementById('btnNextPage');
-            
+
             btnPrev.disabled = (tablePage === 1);
             btnPrev.style.opacity = (tablePage === 1) ? '0.5' : '1';
             btnPrev.style.cursor = (tablePage === 1) ? 'not-allowed' : 'pointer';
-            
+
             btnNext.disabled = (tablePage === totalPages);
             btnNext.style.opacity = (tablePage === totalPages) ? '0.5' : '1';
             btnNext.style.cursor = (tablePage === totalPages) ? 'not-allowed' : 'pointer';
