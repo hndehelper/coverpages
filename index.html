@@ -537,7 +537,9 @@
             try {
                 const { data: logs, error } = await supabaseClient
                     .from('export_logs')
-                    .select('course, created_at');
+                    .select('course, created_at')
+                    .order('created_at', { ascending: false })
+                    .limit(20000);
 
                 if (error || !logs || logs.length === 0) return;
 
